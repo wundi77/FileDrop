@@ -8,6 +8,7 @@ final class PanelController {
     private(set) var panel: FloatingPanel!
     private var hostingView: NSHostingView<ClipboardPanelView>!
     private var cancellable: AnyCancellable?
+    private var dragStartFrameOrigin: NSPoint?
 
     func show() {
         if panel == nil {
@@ -49,6 +50,9 @@ final class PanelController {
         self.panel = panel
         self.hostingView = hostingView
 
+        store.onHeaderDragChanged = { [weak self] translation in self?.headerDragChanged(translation) }
+        store.onHeaderDragEnded = { [weak self] in self?.dragStartFrameOrigin = nil }
+
         // The window's frame drives the SwiftUI content's proposed size, so
         // asking the content for its own preferred size via a GeometryReader
         // would just echo the current (stale) frame back. Instead measure the
@@ -73,6 +77,15 @@ final class PanelController {
         panel.setFrame(NSRect(x: x, y: y, width: Theme.panelWidth, height: 80), display: true)
     }
 
+    private func headerDragChanged(_ translation: CGSize) {
+        guard let panel else { return }
+        if dragStartFrameOrigin == nil {
+            dragStartFrameOrigin = panel.frame.origin
+        }
+        guard let start = dragStartFrameOrigin else { return }
+        panel.setFrameOrigin(NSPoint(x: start.x + translation.width, y: start.y - translation.height))
+    }
+
     private func updateSize() {
         guard let hostingView else { return }
         resize(to: hostingView.fittingSize)
@@ -92,8 +105,5 @@ final class PanelController {
         let newOrigin = NSPoint(x: currentFrame.origin.x, y: currentFrame.maxY - newHeight)
         let newFrame = NSRect(origin: newOrigin, size: NSSize(width: Theme.panelWidth, height: newHeight))
         panel.setFrame(newFrame, display: true)
-        // The native shadow doesn't always recompute its shape on its own
-        // after a programmatic frame change.
-        panel.invalidateShadow()
     }
 }

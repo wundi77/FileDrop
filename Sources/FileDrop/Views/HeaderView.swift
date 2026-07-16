@@ -75,7 +75,22 @@ struct HeaderView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(WindowDragHandle())
+        .contentShape(Rectangle())
+        .gesture(
+            // Pure SwiftUI window drag, replacing an NSViewRepresentable
+            // background view that turned out to be a repeat suspect in the
+            // corner-transparency saga: this removes the only AppKit-bridged
+            // content from the header entirely. A small minimumDistance
+            // keeps ordinary clicks on the buttons/text from being
+            // swallowed as a (zero-movement) drag.
+            DragGesture(minimumDistance: 4)
+                .onChanged { value in
+                    store.onHeaderDragChanged(value.translation)
+                }
+                .onEnded { _ in
+                    store.onHeaderDragEnded()
+                }
+        )
         .overlay(Rectangle().fill(palette.divider).frame(height: 1), alignment: .bottom)
     }
 }

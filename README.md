@@ -47,7 +47,7 @@ Sources/FileDrop/
   FileDropApp.swift        App-Einstiegspunkt (SwiftUI App, kein Fenster-Scene)
   AppDelegate.swift         Menüleisten-Icon, Activation Policy
   Models/                   ClipboardFile, ClipboardStore (State), ThumbnailLoader
-  Theme/                    Farbtoken (hell/dunkel), Vibrancy-Blur
+  Theme/                    Farbtoken (hell/dunkel)
   Views/                    Header, Grid-/Listenansicht, Kontextmenü, Drop-Overlay
   Window/                   Borderless NSPanel + Controller
 design/handoff/             Original-Design-Handoff (Referenz, nicht Teil der App)

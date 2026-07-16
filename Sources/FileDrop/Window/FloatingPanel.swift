@@ -15,16 +15,19 @@ final class FloatingPanel: NSPanel {
         )
         isOpaque = false
         backgroundColor = .clear
-        // Re-enabled now that the corner-transparency bug is fixed at its
-        // real source (a stray opaque layer, not the window shadow) — a
-        // native shadow on a non-opaque window follows the window's actual
-        // alpha shape, layering in under the panel's own SwiftUI shadow for
-        // a slightly richer drop shadow.
-        hasShadow = true
+        // Reverted: re-enabling this introduced a faint square smudge at
+        // the *bottom* corners too (previously clean), on top of the
+        // pre-existing top-corner bug. The native shadow computes its shape
+        // from the window's alpha channel, and the rounded rect's own
+        // anti-aliased edge is apparently not clean enough for it — the
+        // panel's own SwiftUI shadow (which does look right) is what
+        // actually renders the drop shadow.
+        hasShadow = false
         level = .floating
         // The whole content area hosts clickable/draggable file tiles, so the
         // window must not move on every mouse-down inside it — only the
-        // header (via WindowDragHandle) should drag the panel.
+        // header (via a SwiftUI DragGesture routed through PanelController)
+        // should drag the panel.
         isMovableByWindowBackground = false
         hidesOnDeactivate = false
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
