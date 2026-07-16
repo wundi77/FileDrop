@@ -37,8 +37,9 @@ nativer Fensterschatten sind der pragmatische Kompromiss.
 - Minimieren auf die Kopfzeile
 - Hell/Dunkel-Umschalter
 - Tooltips für alle Kopfzeilen-Icons (Hover zeigt die jeweilige Funktion)
-- Menüleisten-Icon: einfacher Klick blendet das Panel direkt ein/aus,
-  Rechtsklick zeigt „Beenden"
+- Menüleisten-Icon: einfacher Klick blendet das Panel direkt ein/aus.
+  Rechtsklick zeigt ein Menü mit „Beim Start automatisch laden" (Haken zeigt
+  an, ob aktiviert; per Klick umschaltbar, über `SMAppService`) und „Beenden"
 - AirDrop-Button teilt die aktuell markierten Dateien über die native
   AirDrop-Freigabe
 - ZIP-Button packt die markierten Dateien in ein Archiv auf dem Schreibtisch
