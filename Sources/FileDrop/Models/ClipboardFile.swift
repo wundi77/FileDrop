@@ -5,7 +5,6 @@ struct ClipboardFile: Identifiable, Equatable {
     let id = UUID()
     let url: URL
     var sizeBytes: Int64
-    var isLocked: Bool = false
 
     var name: String { url.lastPathComponent }
     var ext: String {

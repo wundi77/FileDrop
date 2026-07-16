@@ -9,8 +9,8 @@ struct HeaderView: View {
         HStack(spacing: 0) {
             HStack(spacing: 7) {
                 HStack(spacing: 8) {
-                    HeaderIconButton(systemName: SymbolIcon.trash, title: "Alle Dateien löschen", palette: palette) {
-                        store.clearAll()
+                    HeaderIconButton(systemName: SymbolIcon.trash, title: "Ausgewählte löschen", palette: palette) {
+                        store.removeSelected()
                     }
                     HeaderIconButton(systemName: SymbolIcon.selectAll, title: "Alle auswählen", palette: palette) {
                         store.toggleSelectAll()

@@ -48,15 +48,6 @@ struct ContextMenuView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            item("Bild sperren") {
-                store.toggleLock(fileID)
-                store.closeContextMenu()
-            }
-            Rectangle()
-                .fill(palette.divider)
-                .frame(height: 1)
-                .padding(.vertical, 4)
-                .padding(.horizontal, 2)
             item("Löschen") {
                 store.removeFile(fileID)
             }

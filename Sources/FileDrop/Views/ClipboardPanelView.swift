@@ -29,11 +29,20 @@ struct ClipboardPanelView: View {
                 DropOverlayView(palette: palette, cornerRadius: Theme.Radius.panel - 6, isDark: store.isDarkMode)
             }
         }
-        .overlay(alignment: .bottomTrailing) {
+        .overlay {
             if let contextID = store.contextMenuFileID, store.files.contains(where: { $0.id == contextID }) {
-                ContextMenuView(store: store, palette: palette, fileID: contextID)
-                    .padding(18)
-                    .transition(.opacity)
+                ZStack(alignment: .bottomTrailing) {
+                    // Catches clicks anywhere outside the menu card itself so
+                    // the menu dismisses on a normal click elsewhere, instead
+                    // of only via its own item taps.
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture { store.closeContextMenu() }
+
+                    ContextMenuView(store: store, palette: palette, fileID: contextID)
+                        .padding(18)
+                }
+                .transition(.opacity)
             }
         }
         .shadow(color: .black.opacity(0.28), radius: 30, x: 0, y: 24)

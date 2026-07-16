@@ -42,11 +42,12 @@ final class ClipboardStore: ObservableObject {
         if hoveredFileID == id { hoveredFileID = nil }
     }
 
-    func clearAll() {
-        files.removeAll()
+    func removeSelected() {
+        guard !selectedIDs.isEmpty else { return }
+        files.removeAll { selectedIDs.contains($0.id) }
+        if let contextMenuFileID, selectedIDs.contains(contextMenuFileID) { self.contextMenuFileID = nil }
+        if let hoveredFileID, selectedIDs.contains(hoveredFileID) { self.hoveredFileID = nil }
         selectedIDs.removeAll()
-        contextMenuFileID = nil
-        hoveredFileID = nil
     }
 
     func toggleSelect(_ id: UUID) {
@@ -64,11 +65,6 @@ final class ClipboardStore: ObservableObject {
         } else {
             selectedIDs = allIDs
         }
-    }
-
-    func toggleLock(_ id: UUID) {
-        guard let idx = files.firstIndex(where: { $0.id == id }) else { return }
-        files[idx].isLocked.toggle()
     }
 
     func openContextMenu(for id: UUID) {

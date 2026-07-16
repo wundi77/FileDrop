@@ -14,7 +14,8 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 
 - Grid- und Listenansicht der gesammelten Dateien
 - Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)
-- Rechtsklick-Kontextmenü (Bild sperren, Löschen, Kopieren, Im Finder anzeigen)
+- Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen); schließt
+  sich bei Klick an beliebiger Stelle außerhalb
 - Drag & Drop zum Sammeln von Dateien; einzelne Dateien lassen sich per Ziehen
   aus dem Panel wieder heraus in Finder/andere Apps ablegen
 - Nur die Kopfzeile bewegt das Fenster (per Drag) — der Dateibereich ist rein
@@ -24,7 +25,8 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 - Tooltips für alle Kopfzeilen-Icons (Hover zeigt die jeweilige Funktion)
 - Menüleisten-Icon zum Ein-/Ausblenden des Panels
 
-Papierkorb-, AirDrop- und ZIP-Buttons in der Kopfzeile sind aktuell
+Der Papierkorb-Button löscht nur die aktuell markierten Dateien (kein Effekt
+ohne Auswahl). AirDrop- und ZIP-Buttons in der Kopfzeile sind aktuell
 Platzhalter ohne Funktion (siehe Design-Handoff).
 
 ## Projektstruktur
