@@ -122,6 +122,23 @@ final class ClipboardStore: ObservableObject {
         files.filter { selectedIDs.contains($0.id) }.map(\.url)
     }
 
+    /// What an outgoing drag started from `file` should carry: just that one
+    /// file, unless it's part of a multi-selection, in which case the whole
+    /// selection goes along (matching Finder: dragging any selected icon
+    /// drags the whole selection, dragging an unselected one drags just
+    /// itself). `thumbnail` is the dragged tile's own already-loaded preview,
+    /// if any — the other selected files fall back to their generic icon
+    /// since their thumbnails aren't available at the drag's origin view.
+    func dragPayload(draggingFile file: ClipboardFile, thumbnail: NSImage?) -> MultiFileDragPayload {
+        guard selectedIDs.contains(file.id), selectedIDs.count > 1 else {
+            return MultiFileDragPayload(urls: [file.url], images: [thumbnail ?? file.icon])
+        }
+        let selected = files.filter { selectedIDs.contains($0.id) }
+        let ordered = [file] + selected.filter { $0.id != file.id }
+        let images = ordered.map { $0.id == file.id ? (thumbnail ?? file.icon) : $0.icon }
+        return MultiFileDragPayload(urls: ordered.map(\.url), images: images)
+    }
+
     func shareSelectedViaAirDrop() {
         let urls = selectedURLs
         guard !urls.isEmpty else { return }

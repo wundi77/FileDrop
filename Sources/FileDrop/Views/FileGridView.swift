@@ -90,18 +90,22 @@ struct FileTileView: View {
         )
         .fileTooltip(file.name, isActive: isHovered)
         .contentShape(Rectangle())
-        .onTapGesture {
-            store.toggleSelect(file.id)
-        }
         .onHover { hovering in
             store.hoveredFileID = hovering ? file.id : (store.hoveredFileID == file.id ? nil : store.hoveredFileID)
         }
         .onRightClick {
             store.openContextMenu(for: file.id)
         }
-        .onDrag {
-            file.makeDragItemProvider()
-        }
+        // .background, not .overlay: the remove (X) button is real SwiftUI
+        // foreground content and needs first claim on its own small area —
+        // matching WindowDragHandle's placement, a background decoration
+        // only receives clicks that don't land on something in front of it.
+        .background(
+            MultiItemDragHandle(
+                payload: { store.dragPayload(draggingFile: file, thumbnail: thumbnail) },
+                onPlainClick: { store.toggleSelect(file.id) }
+            )
+        )
     }
 }
 
