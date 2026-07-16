@@ -99,9 +99,24 @@ struct PanelTooltipOverlay: View {
     let info: PanelTooltipInfo
     let palette: PanelPalette
 
+    // The window is exactly as wide as the panel — there are no pixels past
+    // its edge to draw into, so a bubble simply centered on an icon near the
+    // left/right edge gets hard-clipped by the window's own frame rather
+    // than just visually overlapping something. Since we can't measure the
+    // bubble's rendered width before laying it out, clamp its center using a
+    // conservative half-width estimate that comfortably covers our longest
+    // tooltip strings, keeping it fully inside the panel either way.
+    private let estimatedHalfWidth: CGFloat = 115
+    private let edgeMargin: CGFloat = 6
+
     var body: some View {
         GeometryReader { proxy in
             let rect = proxy[info.anchor]
+            let panelWidth = proxy.size.width
+            let lowerBound = estimatedHalfWidth + edgeMargin
+            let upperBound = max(panelWidth - estimatedHalfWidth - edgeMargin, lowerBound)
+            let clampedX = min(max(rect.midX, lowerBound), upperBound)
+
             Text(info.title)
                 .font(.system(size: 10.5, weight: .medium))
                 .foregroundColor(palette.headerBackground)
@@ -112,7 +127,7 @@ struct PanelTooltipOverlay: View {
                         .fill(palette.text)
                 )
                 .fixedSize()
-                .position(x: rect.midX, y: info.placement == .below ? rect.maxY + 13 : rect.minY - 13)
+                .position(x: clampedX, y: info.placement == .below ? rect.maxY + 13 : rect.minY - 13)
                 .allowsHitTesting(false)
         }
     }

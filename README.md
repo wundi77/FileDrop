@@ -12,7 +12,11 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 
 ## Funktionen
 
-- Grid- und Listenansicht der gesammelten Dateien
+- Grid- und Listenansicht der gesammelten Dateien mit echten Vorschaubildern
+  (via QuickLookThumbnailing, wie in Finder — z. B. tatsächliches Bild bei
+  Fotos, erste Seite bei PDFs); fällt auf das generische Dateityp-Icon
+  zurück, wenn QuickLook keine Vorschau erzeugen kann
+- Listenansicht zeigt die Dateigröße statt der Typ-Kennung neben jeder Datei
 - Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)
 - Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen); schließt
   sich bei Klick an beliebiger Stelle außerhalb
@@ -38,7 +42,7 @@ Dateien und tun bei leerer Auswahl nichts.
 Sources/FileDrop/
   FileDropApp.swift        App-Einstiegspunkt (SwiftUI App, kein Fenster-Scene)
   AppDelegate.swift         Menüleisten-Icon, Activation Policy
-  Models/                   ClipboardFile, ClipboardStore (State)
+  Models/                   ClipboardFile, ClipboardStore (State), ThumbnailLoader
   Theme/                    Farbtoken (hell/dunkel), Vibrancy-Blur
   Views/                    Header, Grid-/Listenansicht, Kontextmenü, Drop-Overlay
   Window/                   Borderless NSPanel + Controller

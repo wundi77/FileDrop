@@ -23,11 +23,16 @@ struct VisualEffectView: NSViewRepresentable {
 
 /// .behindWindow blending composites straight against the desktop at the
 /// window-server level, bypassing SwiftUI's clipShape entirely — its square
-/// corners show through behind the panel's rounded shape unless the view's
-/// own layer is rounded. `wantsLayer`/`layer` can still be nil the instant
-/// the view is created, so the corner mask is (re-)applied on every layout
-/// pass and whenever the view joins a window, instead of relying on a single
-/// makeNSView-time assignment.
+/// corners show through behind the panel's rounded shape unless clipped on
+/// the view's own layer. Two things matter here, both learned the hard way:
+///  - Don't force `wantsLayer = true` ourselves. NSVisualEffectView already
+///    manages its own backing layer for the blur; assigning a fresh one can
+///    disconnect that internal blur layer from whatever mask we apply to the
+///    (now different) `.layer` we created.
+///  - Use an explicit `CAShapeLayer` mask, not `cornerRadius` +
+///    `masksToBounds`. The vibrancy backdrop isn't drawn like normal layer
+///    content — masksToBounds on it was a no-op in practice, an alpha mask
+///    is not.
 final class RoundedVisualEffectView: NSVisualEffectView {
     var cornerRadius: CGFloat = 0 {
         didSet { applyCornerMask() }
@@ -44,8 +49,9 @@ final class RoundedVisualEffectView: NSVisualEffectView {
     }
 
     private func applyCornerMask() {
-        wantsLayer = true
-        layer?.cornerRadius = cornerRadius
-        layer?.masksToBounds = true
+        guard let layer, bounds.width > 0, bounds.height > 0 else { return }
+        let shape = CAShapeLayer()
+        shape.path = CGPath(roundedRect: bounds, cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil)
+        layer.mask = shape
     }
 }

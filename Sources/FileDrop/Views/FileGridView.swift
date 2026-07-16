@@ -20,6 +20,8 @@ struct FileTileView: View {
     let palette: PanelPalette
     let file: ClipboardFile
 
+    @State private var thumbnail: NSImage?
+
     private var isSelected: Bool { store.selectedIDs.contains(file.id) }
     private var isHovered: Bool { store.hoveredFileID == file.id }
 
@@ -28,17 +30,27 @@ struct FileTileView: View {
             ZStack(alignment: .topTrailing) {
                 RoundedRectangle(cornerRadius: Theme.Radius.preview, style: .continuous)
                     .fill(palette.cardFill)
-                    .overlay(
-                        Image(nsImage: file.icon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .padding(10)
-                    )
+                    .overlay {
+                        if let thumbnail {
+                            Image(nsImage: thumbnail)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.preview, style: .continuous))
+                        } else {
+                            Image(nsImage: file.icon)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .padding(10)
+                        }
+                    }
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.preview, style: .continuous)
                             .stroke(palette.cardBorder, lineWidth: 1)
                     )
                     .aspectRatio(1, contentMode: .fit)
+                    .task(id: file.id) {
+                        thumbnail = await ThumbnailLoader.generate(for: file.url, size: CGSize(width: 160, height: 160))
+                    }
 
                 Button {
                     store.removeFile(file.id)

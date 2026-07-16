@@ -18,6 +18,8 @@ struct FileRowView: View {
     let palette: PanelPalette
     let file: ClipboardFile
 
+    @State private var thumbnail: NSImage?
+
     private var isSelected: Bool { store.selectedIDs.contains(file.id) }
 
     var body: some View {
@@ -33,14 +35,24 @@ struct FileRowView: View {
 
             RoundedRectangle(cornerRadius: 6, style: .continuous)
                 .fill(palette.cardFill)
-                .overlay(
-                    Image(nsImage: file.icon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(4)
-                )
+                .overlay {
+                    if let thumbnail {
+                        Image(nsImage: thumbnail)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    } else {
+                        Image(nsImage: file.icon)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding(4)
+                    }
+                }
                 .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).stroke(palette.cardBorder, lineWidth: 1))
                 .frame(width: 26, height: 26)
+                .task(id: file.id) {
+                    thumbnail = await ThumbnailLoader.generate(for: file.url, size: CGSize(width: 52, height: 52))
+                }
 
             Text(file.name)
                 .font(.system(size: 12.5, weight: .medium))
@@ -49,7 +61,7 @@ struct FileRowView: View {
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text(file.ext)
+            Text(FileSizeFormatter.label(bytes: file.sizeBytes))
                 .font(.system(size: 10, design: .monospaced))
                 .tracking(0.3)
                 .foregroundColor(palette.subText)
