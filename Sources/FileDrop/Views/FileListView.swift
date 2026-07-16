@@ -80,7 +80,7 @@ struct FileRowView: View {
             store.openContextMenu(for: file.id)
         }
         .onDrag {
-            NSItemProvider(contentsOf: file.url) ?? NSItemProvider()
+            file.makeDragItemProvider()
         }
     }
 }

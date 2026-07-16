@@ -33,6 +33,37 @@ final class ClipboardStore: ObservableObject {
         let existing = Set(files.map(\.url))
         let newFiles = urls.filter { !existing.contains($0) }.map(ClipboardFile.init)
         files.append(contentsOf: newFiles)
+
+        for file in newFiles where file.isDirectory {
+            computeFolderSize(id: file.id, url: file.url)
+        }
+    }
+
+    private func computeFolderSize(id: UUID, url: URL) {
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let size = Self.recursiveSize(of: url)
+            DispatchQueue.main.async {
+                guard let self, let idx = self.files.firstIndex(where: { $0.id == id }) else { return }
+                self.files[idx].sizeBytes = size
+            }
+        }
+    }
+
+    private nonisolated static func recursiveSize(of url: URL) -> Int64 {
+        let fm = FileManager.default
+        guard let enumerator = fm.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+
+        var total: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            guard let values = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey]),
+                  values.isDirectory != true else { continue }
+            total += Int64(values.fileSize ?? 0)
+        }
+        return total
     }
 
     func removeFile(_ id: UUID) {

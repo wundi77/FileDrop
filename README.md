@@ -30,8 +30,10 @@ nativer Fensterschatten sind der pragmatische Kompromiss.
 - Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)
 - Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen); schließt
   sich bei Klick an beliebiger Stelle außerhalb
-- Drag & Drop zum Sammeln von Dateien; einzelne Dateien lassen sich per Ziehen
-  aus dem Panel wieder heraus in Finder/andere Apps ablegen
+- Drag & Drop zum Sammeln von Dateien und Ordnern; Ordnergröße wird rekursiv
+  im Hintergrund berechnet. Einzelne Dateien/Ordner lassen sich per Ziehen aus
+  dem Panel wieder heraus in Finder/andere Apps ablegen — als echte Kopie mit
+  Original-Namen, der Ausgangs-Eintrag bleibt in der Ablage erhalten
 - Nur die Kopfzeile bewegt das Fenster (per Drag) — der Dateibereich ist rein
   für Auswahl/Drag-out reserviert
 - Minimieren auf die Kopfzeile
