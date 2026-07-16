@@ -86,4 +86,43 @@ final class ClipboardStore: ObservableObject {
         pb.clearContents()
         pb.writeObjects([file.url as NSURL])
     }
+
+    var selectedURLs: [URL] {
+        files.filter { selectedIDs.contains($0.id) }.map(\.url)
+    }
+
+    func shareSelectedViaAirDrop() {
+        let urls = selectedURLs
+        guard !urls.isEmpty else { return }
+        NSSharingService(named: .sendViaAirDrop)?.perform(withItems: urls)
+    }
+
+    func exportSelectedAsZip() {
+        let urls = selectedURLs
+        guard !urls.isEmpty else { return }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            guard let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first else { return }
+
+            let baseName = "FileDrop-Export"
+            var destination = desktopURL.appendingPathComponent("\(baseName).zip")
+            var suffix = 1
+            while FileManager.default.fileExists(atPath: destination.path) {
+                destination = desktopURL.appendingPathComponent("\(baseName)-\(suffix).zip")
+                suffix += 1
+            }
+
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+            process.arguments = ["-j", "-q", destination.path] + urls.map(\.path)
+
+            guard (try? process.run()) != nil else { return }
+            process.waitUntilExit()
+            guard process.terminationStatus == 0 else { return }
+
+            DispatchQueue.main.async {
+                NSWorkspace.shared.activateFileViewerSelecting([destination])
+            }
+        }
+    }
 }

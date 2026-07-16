@@ -15,8 +15,12 @@ struct HeaderView: View {
                     HeaderIconButton(systemName: SymbolIcon.selectAll, title: "Alle auswählen", palette: palette) {
                         store.toggleSelectAll()
                     }
-                    HeaderIconButton(systemName: SymbolIcon.airdrop, title: "Über AirDrop teilen", palette: palette) {}
-                    HeaderIconButton(systemName: SymbolIcon.zip, title: "Als ZIP packen", palette: palette) {}
+                    HeaderIconButton(systemName: SymbolIcon.airdrop, title: "Ausgewählte per AirDrop teilen", palette: palette) {
+                        store.shareSelectedViaAirDrop()
+                    }
+                    HeaderIconButton(systemName: SymbolIcon.zip, title: "Ausgewählte als ZIP exportieren", palette: palette) {
+                        store.exportSelectedAsZip()
+                    }
                 }
                 .padding(.trailing, 10)
                 .overlay(Rectangle().fill(palette.divider).frame(width: 1), alignment: .trailing)

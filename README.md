@@ -24,10 +24,13 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 - Hell/Dunkel-Umschalter
 - Tooltips für alle Kopfzeilen-Icons (Hover zeigt die jeweilige Funktion)
 - Menüleisten-Icon zum Ein-/Ausblenden des Panels
+- AirDrop-Button teilt die aktuell markierten Dateien über die native
+  AirDrop-Freigabe
+- ZIP-Button packt die markierten Dateien in ein Archiv auf dem Schreibtisch
+  und öffnet es im Finder (nutzt `/usr/bin/zip`, auf jedem Mac vorhanden)
 
-Der Papierkorb-Button löscht nur die aktuell markierten Dateien (kein Effekt
-ohne Auswahl). AirDrop- und ZIP-Buttons in der Kopfzeile sind aktuell
-Platzhalter ohne Funktion (siehe Design-Handoff).
+Papierkorb-, AirDrop- und ZIP-Button wirken nur auf die aktuell markierten
+Dateien und tun bei leerer Auswahl nichts.
 
 ## Projektstruktur
 

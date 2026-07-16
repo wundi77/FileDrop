@@ -51,9 +51,9 @@ struct ClipboardPanelView: View {
         .onDrop(of: [.fileURL], isTargeted: $store.isDraggingOver) { providers in
             handleDrop(providers: providers)
         }
-        .overlayPreferenceValue(HeaderTooltipPreferenceKey.self) { info in
+        .overlayPreferenceValue(PanelTooltipPreferenceKey.self) { info in
             if let info {
-                HeaderTooltipOverlay(info: info, palette: palette)
+                PanelTooltipOverlay(info: info, palette: palette)
             }
         }
     }

@@ -64,22 +64,7 @@ struct FileTileView: View {
             RoundedRectangle(cornerRadius: Theme.Radius.tile, style: .continuous)
                 .stroke(isSelected ? palette.accent : Color.clear, lineWidth: 1.5)
         )
-        .overlay(alignment: .top) {
-            if isHovered {
-                Text(file.name)
-                    .font(.system(size: 10.5, weight: .medium))
-                    .foregroundColor(palette.headerBackground)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(palette.text)
-                    )
-                    .fixedSize()
-                    .offset(y: -28)
-                    .zIndex(30)
-            }
-        }
+        .fileTooltip(file.name, isActive: isHovered)
         .contentShape(Rectangle())
         .onTapGesture {
             store.toggleSelect(file.id)

@@ -24,22 +24,31 @@ enum SymbolIcon {
     static let revealInFinder = "folder"
 }
 
-// MARK: - Header tooltip plumbing
+// MARK: - Tooltip plumbing
 //
-// The panel clips its whole content to a rounded rect and the file body sits
-// right below the header, so a tooltip nested directly under a header button
-// would get clipped or painted over. Instead each button publishes its
-// hover title + on-screen bounds via a preference; ClipboardPanelView reads
-// it once, at the top level (after the panel's own clipShape), and draws the
-// bubble unclipped, above everything else.
-struct HeaderTooltipInfo {
+// The panel clips its whole content to a rounded rect and the scrollable file
+// body clips its own overflow, so a tooltip nested directly under a header
+// button or a file tile gets clipped or painted over (header buttons: cut by
+// the panel's rounded corner; file tiles in the top row: cut by the
+// ScrollView's own edge). Instead each hoverable control publishes its hover
+// title + on-screen bounds via a preference; ClipboardPanelView reads it
+// once, at the top level (after clipShape/ScrollView), and draws the bubble
+// unclipped, above everything else.
+struct PanelTooltipInfo {
     let title: String
     let anchor: Anchor<CGRect>
+    /// Whether the bubble should render above or below the anchored control.
+    let placement: PanelTooltipPlacement
 }
 
-struct HeaderTooltipPreferenceKey: PreferenceKey {
-    static var defaultValue: HeaderTooltipInfo?
-    static func reduce(value: inout HeaderTooltipInfo?, nextValue: () -> HeaderTooltipInfo?) {
+enum PanelTooltipPlacement {
+    case above
+    case below
+}
+
+struct PanelTooltipPreferenceKey: PreferenceKey {
+    static var defaultValue: PanelTooltipInfo?
+    static func reduce(value: inout PanelTooltipInfo?, nextValue: () -> PanelTooltipInfo?) {
         value = nextValue() ?? value
     }
 }
@@ -70,14 +79,24 @@ struct HeaderIconButton: View {
         .buttonStyle(.plain)
         .help(title)
         .onHover { isHovering = $0 }
-        .anchorPreference(key: HeaderTooltipPreferenceKey.self, value: .bounds) { anchor in
-            isHovering ? HeaderTooltipInfo(title: title, anchor: anchor) : nil
+        .anchorPreference(key: PanelTooltipPreferenceKey.self, value: .bounds) { anchor in
+            isHovering ? PanelTooltipInfo(title: title, anchor: anchor, placement: .below) : nil
         }
     }
 }
 
-struct HeaderTooltipOverlay: View {
-    let info: HeaderTooltipInfo
+extension View {
+    /// Publishes `title` as a panel-level tooltip (see PanelTooltipPreferenceKey)
+    /// while `isActive` is true, rendered above the view's bounds.
+    func fileTooltip(_ title: String, isActive: Bool) -> some View {
+        anchorPreference(key: PanelTooltipPreferenceKey.self, value: .bounds) { anchor in
+            isActive ? PanelTooltipInfo(title: title, anchor: anchor, placement: .above) : nil
+        }
+    }
+}
+
+struct PanelTooltipOverlay: View {
+    let info: PanelTooltipInfo
     let palette: PanelPalette
 
     var body: some View {
@@ -93,7 +112,7 @@ struct HeaderTooltipOverlay: View {
                         .fill(palette.text)
                 )
                 .fixedSize()
-                .position(x: rect.midX, y: rect.maxY + 13)
+                .position(x: rect.midX, y: info.placement == .below ? rect.maxY + 13 : rect.minY - 13)
                 .allowsHitTesting(false)
         }
     }
