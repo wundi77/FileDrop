@@ -34,9 +34,11 @@ Sources/FileDrop/
   Views/                    Header, Grid-/Listenansicht, Kontextmenü, Drop-Overlay
   Window/                   Borderless NSPanel + Controller
 design/handoff/             Original-Design-Handoff (Referenz, nicht Teil der App)
+Scripts/generate_icon.swift  Zeichnet das App-Icon (alle .iconset-Größen)
+build.sh                     Baut ein fertiges FileDrop.app-Bundle
 ```
 
-## Build & Run
+## Entwicklung (ohne Bundle)
 
 Voraussetzung: Xcode-Kommandozeilentools (Swift 5.10+, macOS 13+).
 
@@ -48,3 +50,19 @@ swift run
 Die App läuft als Accessory-App ohne Dock-Icon; das Panel erscheint beim
 Start oben rechts auf dem Hauptbildschirm und lässt sich über das
 Menüleisten-Icon ein-/ausblenden.
+
+## Fertiges App-Bundle bauen
+
+```sh
+./build.sh          # baut build/FileDrop.app
+./build.sh --run     # baut und startet die App danach direkt
+```
+
+Der Build-Schritt:
+1. kompiliert im Release-Modus (`swift build -c release`),
+2. erzeugt bei jedem Lauf frisch ein App-Icon (`Scripts/generate_icon.swift`
+   zeichnet alle `.iconset`-Größen, `iconutil` packt sie zu `AppIcon.icns`),
+3. baut daraus `build/FileDrop.app` (Info.plist, Executable, Icon) und
+   signiert es ad-hoc, damit Gatekeeper es ohne Warnung startet.
+
+`build/` ist generiert und nicht Teil des Repos (siehe `.gitignore`).
