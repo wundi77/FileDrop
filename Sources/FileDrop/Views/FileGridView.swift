@@ -90,7 +90,7 @@ struct FileTileView: View {
         )
         .fileTooltip(file.name, isActive: isHovered)
         .contentShape(Rectangle())
-        .background(MultiItemDragHandle(file: file, store: store))
+        .overlay(MultiItemDragHandle(file: file, store: store))
         .onHover { hovering in
             store.hoveredFileID = hovering ? file.id : (store.hoveredFileID == file.id ? nil : store.hoveredFileID)
         }

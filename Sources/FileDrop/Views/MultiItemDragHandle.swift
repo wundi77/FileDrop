@@ -11,6 +11,13 @@ import AppKit
 /// the file; a drag past a small threshold starts a native multi-item
 /// dragging session carrying every currently-selected file, so the whole
 /// selection moves together, matching Finder.
+///
+/// Must be attached via `.overlay(...)`, not `.background(...)`: SwiftUI's
+/// hosting layer routes real mouseDown/mouseUp only to AppKit views it
+/// finds ahead of its own content in z-order (the same reason
+/// `RightClickCatcher` works as an overlay). A background sibling still
+/// gets asked `hitTest` for incidental things like cursor updates, but
+/// never actually receives the click.
 struct MultiItemDragHandle: NSViewRepresentable {
     let file: ClipboardFile
     let store: ClipboardStore
@@ -35,10 +42,23 @@ struct MultiItemDragHandle: NSViewRepresentable {
         private var didStartDrag = false
         private let dragThreshold: CGFloat = 16 // squared distance, ~4pt
 
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            true
+        }
+
         override func hitTest(_ point: NSPoint) -> NSView? {
             // Right-clicks are handled by RightClickCatcher's overlay above
             // this view; let those pass through untouched.
             if let event = NSApp.currentEvent, event.type == .rightMouseDown || event.type == .rightMouseUp {
+                return nil
+            }
+            // The per-file remove ("x") button sits in the top-right corner of
+            // the tile/row, drawn by SwiftUI above this overlay. Since this
+            // view otherwise covers the whole tile to own click-vs-drag
+            // detection, it must explicitly yield that corner so the button
+            // still receives its own clicks instead of being selected.
+            let removeButtonZone = NSRect(x: bounds.width - 32, y: bounds.height - 32, width: 32, height: 32)
+            if removeButtonZone.contains(point) {
                 return nil
             }
             return super.hitTest(point)

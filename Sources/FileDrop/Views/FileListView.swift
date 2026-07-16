@@ -73,7 +73,7 @@ struct FileRowView: View {
                 .fill(isSelected ? palette.hoverFill : Color.clear)
         )
         .contentShape(Rectangle())
-        .background(MultiItemDragHandle(file: file, store: store))
+        .overlay(MultiItemDragHandle(file: file, store: store))
         .onRightClick {
             store.openContextMenu(for: file.id)
         }
