@@ -15,7 +15,9 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 - Grid- und Listenansicht der gesammelten Dateien mit echten Vorschaubildern
   (via QuickLookThumbnailing, wie in Finder — z. B. tatsächliches Bild bei
   Fotos, erste Seite bei PDFs); fällt auf das generische Dateityp-Icon
-  zurück, wenn QuickLook keine Vorschau erzeugen kann
+  zurück, wenn QuickLook keine Vorschau erzeugen kann. Vorschaubilder werden
+  immer auf die normale Kachel-/Icon-Größe des Rasters begrenzt, unabhängig
+  vom Seitenverhältnis der Originaldatei
 - Beide Ansichten zeigen die Dateigröße statt der Typ-Kennung neben/unter
   jeder Datei
 - Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)

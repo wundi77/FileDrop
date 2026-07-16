@@ -30,14 +30,18 @@ final class PanelController {
         hostingView.frame = initialRect
         // Without this the hosting view's own layer paints an opaque
         // rectangle behind the SwiftUI content, defeating the panel's
-        // transparent, rounded-corner background.
+        // transparent, rounded-corner background. backgroundColor and
+        // isOpaque are separate CALayer properties — isOpaque is a
+        // "don't bother alpha-blending this layer" hint to Core Animation,
+        // and left at its default it can make undrawn (should-be-transparent)
+        // pixels render as solid instead of see-through, independent of
+        // backgroundColor being clear.
         hostingView.wantsLayer = true
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
+        hostingView.layer?.isOpaque = false
         // No cornerRadius/masksToBounds here: the SwiftUI content draws its
         // own soft shadow that bleeds outside the panel's rounded rect, and
-        // clipping the hosting view itself would cut that shadow off. The
-        // vibrancy blur's own corners are rounded separately in
-        // VisualEffectView, which is the layer that actually needed it.
+        // clipping the hosting view itself would cut that shadow off.
         panel.contentView = hostingView
 
         positionInitialFrame(for: panel)
@@ -77,7 +81,11 @@ final class PanelController {
     private func resize(to size: CGSize) {
         guard let panel, size.height > 0 else { return }
         let currentFrame = panel.frame
-        let newHeight = ceil(size.height)
+        // Round down rather than up: a window even fractionally taller than
+        // the SwiftUI content leaves a sliver where the content draws
+        // nothing, which is exactly where a stray opaque pixel would be
+        // hardest to notice except right at the rounded corners.
+        let newHeight = floor(size.height)
         guard abs(currentFrame.height - newHeight) > 0.5 else { return }
 
         // Keep the top edge anchored so the panel grows/shrinks downward.

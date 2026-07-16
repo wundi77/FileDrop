@@ -32,10 +32,22 @@ struct FileTileView: View {
                     .fill(palette.cardFill)
                     .overlay {
                         if let thumbnail {
-                            Image(nsImage: thumbnail)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.preview, style: .continuous))
+                            // A resizable .fill-mode image, left to size itself,
+                            // grows to cover its proposed space and can overflow
+                            // a square derived from aspectRatio(1) — clipShape
+                            // only clips what's drawn, not the layout size it
+                            // reports upward. Measuring the actual square here
+                            // and handing the image an explicit frame pins it
+                            // down for real, whatever the source photo's own
+                            // proportions are.
+                            GeometryReader { proxy in
+                                Image(nsImage: thumbnail)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: proxy.size.width, height: proxy.size.height)
+                                    .clipped()
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.preview, style: .continuous))
                         } else {
                             Image(nsImage: file.icon)
                                 .resizable()
