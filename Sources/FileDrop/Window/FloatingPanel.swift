@@ -15,7 +15,10 @@ final class FloatingPanel: NSPanel {
         )
         isOpaque = false
         backgroundColor = .clear
-        hasShadow = true
+        // The rounded panel draws its own soft SwiftUI shadow; AppKit's native
+        // window shadow is a hard-edged rectangle that ignores the rounded
+        // corners and shows through as a square outline behind them.
+        hasShadow = false
         level = .floating
         isMovableByWindowBackground = true
         hidesOnDeactivate = false

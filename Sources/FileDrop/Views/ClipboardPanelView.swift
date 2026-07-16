@@ -1,17 +1,9 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-private struct PanelSizePreferenceKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        value = nextValue()
-    }
-}
-
 struct ClipboardPanelView: View {
     @ObservedObject var store: ClipboardStore
     var onClose: () -> Void
-    var onSizeChange: (CGSize) -> Void = { _ in }
 
     private var palette: PanelPalette { Theme.palette(dark: store.isDarkMode) }
 
@@ -50,13 +42,10 @@ struct ClipboardPanelView: View {
         .onDrop(of: [.fileURL], isTargeted: $store.isDraggingOver) { providers in
             handleDrop(providers: providers)
         }
-        .background(
-            GeometryReader { proxy in
-                Color.clear.preference(key: PanelSizePreferenceKey.self, value: proxy.size)
+        .overlayPreferenceValue(HeaderTooltipPreferenceKey.self) { info in
+            if let info {
+                HeaderTooltipOverlay(info: info, palette: palette)
             }
-        )
-        .onPreferenceChange(PanelSizePreferenceKey.self) { size in
-            onSizeChange(size)
         }
     }
 

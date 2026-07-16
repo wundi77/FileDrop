@@ -18,6 +18,7 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 - Drag & Drop zum Sammeln von Dateien
 - Minimieren auf die Kopfzeile
 - Hell/Dunkel-Umschalter
+- Tooltips für alle Kopfzeilen-Icons (Hover zeigt die jeweilige Funktion)
 - Menüleisten-Icon zum Ein-/Ausblenden des Panels
 
 Papierkorb-, AirDrop- und ZIP-Buttons in der Kopfzeile sind aktuell
