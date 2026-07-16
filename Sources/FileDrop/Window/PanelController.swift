@@ -92,5 +92,8 @@ final class PanelController {
         let newOrigin = NSPoint(x: currentFrame.origin.x, y: currentFrame.maxY - newHeight)
         let newFrame = NSRect(origin: newOrigin, size: NSSize(width: Theme.panelWidth, height: newHeight))
         panel.setFrame(newFrame, display: true)
+        // The native shadow doesn't always recompute its shape on its own
+        // after a programmatic frame change.
+        panel.invalidateShadow()
     }
 }

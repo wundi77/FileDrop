@@ -15,10 +15,12 @@ final class FloatingPanel: NSPanel {
         )
         isOpaque = false
         backgroundColor = .clear
-        // The rounded panel draws its own soft SwiftUI shadow; AppKit's native
-        // window shadow is a hard-edged rectangle that ignores the rounded
-        // corners and shows through as a square outline behind them.
-        hasShadow = false
+        // Re-enabled now that the corner-transparency bug is fixed at its
+        // real source (a stray opaque layer, not the window shadow) — a
+        // native shadow on a non-opaque window follows the window's actual
+        // alpha shape, layering in under the panel's own SwiftUI shadow for
+        // a slightly richer drop shadow.
+        hasShadow = true
         level = .floating
         // The whole content area hosts clickable/draggable file tiles, so the
         // window must not move on every mouse-down inside it — only the
