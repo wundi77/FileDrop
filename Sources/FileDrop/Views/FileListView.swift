@@ -67,5 +67,8 @@ struct FileRowView: View {
         .onRightClick {
             store.openContextMenu(for: file.id)
         }
+        .onDrag {
+            NSItemProvider(contentsOf: file.url) ?? NSItemProvider()
+        }
     }
 }

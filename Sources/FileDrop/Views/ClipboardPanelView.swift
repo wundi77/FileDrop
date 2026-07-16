@@ -17,7 +17,7 @@ struct ClipboardPanelView: View {
             }
         }
         .frame(width: Theme.panelWidth)
-        .background(VisualEffectView(material: .hudWindow))
+        .background(VisualEffectView(material: .hudWindow, cornerRadius: Theme.Radius.panel))
         .background(palette.bodyBackground)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.panel, style: .continuous))
         .overlay(

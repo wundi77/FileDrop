@@ -20,7 +20,10 @@ final class FloatingPanel: NSPanel {
         // corners and shows through as a square outline behind them.
         hasShadow = false
         level = .floating
-        isMovableByWindowBackground = true
+        // The whole content area hosts clickable/draggable file tiles, so the
+        // window must not move on every mouse-down inside it — only the
+        // header (via WindowDragHandle) should drag the panel.
+        isMovableByWindowBackground = false
         hidesOnDeactivate = false
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         isReleasedWhenClosed = false

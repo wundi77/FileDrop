@@ -71,6 +71,7 @@ struct HeaderView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .background(WindowDragHandle())
         .overlay(Rectangle().fill(palette.divider).frame(height: 1), alignment: .bottom)
     }
 }

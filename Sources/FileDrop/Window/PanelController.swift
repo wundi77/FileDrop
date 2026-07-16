@@ -33,6 +33,11 @@ final class PanelController {
         // transparent, rounded-corner background.
         hostingView.wantsLayer = true
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
+        // No cornerRadius/masksToBounds here: the SwiftUI content draws its
+        // own soft shadow that bleeds outside the panel's rounded rect, and
+        // clipping the hosting view itself would cut that shadow off. The
+        // vibrancy blur's own corners are rounded separately in
+        // VisualEffectView, which is the layer that actually needed it.
         panel.contentView = hostingView
 
         positionInitialFrame(for: panel)

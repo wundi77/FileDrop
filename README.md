@@ -13,9 +13,12 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 ## Funktionen
 
 - Grid- und Listenansicht der gesammelten Dateien
-- Mehrfachauswahl per Klick
+- Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)
 - Rechtsklick-Kontextmenü (Bild sperren, Löschen, Kopieren, Im Finder anzeigen)
-- Drag & Drop zum Sammeln von Dateien
+- Drag & Drop zum Sammeln von Dateien; einzelne Dateien lassen sich per Ziehen
+  aus dem Panel wieder heraus in Finder/andere Apps ablegen
+- Nur die Kopfzeile bewegt das Fenster (per Drag) — der Dateibereich ist rein
+  für Auswahl/Drag-out reserviert
 - Minimieren auf die Kopfzeile
 - Hell/Dunkel-Umschalter
 - Tooltips für alle Kopfzeilen-Icons (Hover zeigt die jeweilige Funktion)
