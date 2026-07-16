@@ -90,17 +90,12 @@ struct FileTileView: View {
         )
         .fileTooltip(file.name, isActive: isHovered)
         .contentShape(Rectangle())
-        .onTapGesture {
-            store.toggleSelect(file.id)
-        }
+        .background(MultiItemDragHandle(file: file, store: store))
         .onHover { hovering in
             store.hoveredFileID = hovering ? file.id : (store.hoveredFileID == file.id ? nil : store.hoveredFileID)
         }
         .onRightClick {
             store.openContextMenu(for: file.id)
-        }
-        .onDrag {
-            file.makeDragItemProvider()
         }
     }
 }

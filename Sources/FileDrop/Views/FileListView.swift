@@ -73,14 +73,9 @@ struct FileRowView: View {
                 .fill(isSelected ? palette.hoverFill : Color.clear)
         )
         .contentShape(Rectangle())
-        .onTapGesture {
-            store.toggleSelect(file.id)
-        }
+        .background(MultiItemDragHandle(file: file, store: store))
         .onRightClick {
             store.openContextMenu(for: file.id)
-        }
-        .onDrag {
-            file.makeDragItemProvider()
         }
     }
 }
