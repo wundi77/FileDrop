@@ -17,22 +17,21 @@ struct ClipboardPanelView: View {
             }
         }
         .frame(width: Theme.panelWidth)
-        // Plan B after repeated corner-clipping failures with NSVisualEffectView's
-        // .behindWindow blending: SwiftUI's own Material is pure SwiftUI/Core
-        // Animation, not a bridged AppKit view fighting the window server's
-        // compositing, so it respects clipShape the same way any other SwiftUI
-        // layer does — same guarantee that already made the panel's bottom
-        // corners work correctly.
+        // Pragmatic fallback after five rounds of failed corner-rounding
+        // attempts (NSVisualEffectView masking, a CAShapeLayer mask, SwiftUI
+        // Material, layer.isOpaque, and finally removing the header's
+        // NSViewRepresentable drag handle entirely) — square corners sidestep
+        // the whole saga, and the native window shadow (re-enabled in
+        // FloatingPanel) works cleanly on an actually-rectangular window.
         .background(.regularMaterial)
         .background(palette.bodyBackground)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.panel, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.panel, style: .continuous)
+            Rectangle()
                 .stroke(palette.border, lineWidth: 1)
         )
         .overlay {
             if store.isDraggingOver {
-                DropOverlayView(palette: palette, cornerRadius: Theme.Radius.panel - 6, isDark: store.isDarkMode)
+                DropOverlayView(palette: palette, cornerRadius: 0, isDark: store.isDarkMode)
             }
         }
         .overlay {
@@ -51,8 +50,6 @@ struct ClipboardPanelView: View {
                 .transition(.opacity)
             }
         }
-        .shadow(color: .black.opacity(0.28), radius: 30, x: 0, y: 24)
-        .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
         .preferredColorScheme(store.isDarkMode ? .dark : .light)
         .onDrop(of: [.fileURL], isTargeted: $store.isDraggingOver) { providers in
             handleDrop(providers: providers)

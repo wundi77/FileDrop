@@ -10,6 +10,13 @@ Glas/Vibrancy). Die dort enthaltenen `.dc.html`-Dateien sind interaktive
 Design-Referenzen (HTML-Prototypen), kein produktiver Code — dieses
 Repository enthält die native SwiftUI/AppKit-Umsetzung.
 
+**Abweichung vom Handoff:** Das Panel hat rechteckige statt abgerundete Ecken.
+Fünf verschiedene technische Ansätze, die abgerundeten Ecken einer transparenten
+`NSPanel` mit Vibrancy-Hintergrund sauber darzustellen, sind an hartnäckigen
+AppKit/Core-Animation-Eigenheiten gescheitert (Reste blieben als undurchsichtige
+Flecken hinter den runden Ecken sichtbar). Rechteckige Ecken plus ein klassischer
+nativer Fensterschatten sind der pragmatische Kompromiss.
+
 ## Funktionen
 
 - Grid- und Listenansicht der gesammelten Dateien mit echten Vorschaubildern

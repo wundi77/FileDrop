@@ -49,7 +49,6 @@ enum Theme {
     static func palette(dark: Bool) -> PanelPalette { dark ? Theme.dark : Theme.light }
 
     enum Radius {
-        static let panel: CGFloat = 20
         static let tile: CGFloat = 11
         static let preview: CGFloat = 8
         static let button: CGFloat = 7

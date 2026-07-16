@@ -18,13 +18,6 @@ final class ClipboardStore: ObservableObject {
     @Published var hoveredFileID: UUID?
     @Published var contextMenuFileID: UUID?
 
-    // Window dragging via the header, wired up by PanelController. Plain
-    // closures rather than a dependency on NSPanel here, and not @Published
-    // — these aren't view state, just a way for the header to reach the
-    // window without every view needing a reference to it.
-    var onHeaderDragChanged: (CGSize) -> Void = { _ in }
-    var onHeaderDragEnded: () -> Void = {}
-
     init() {
         self.isDarkMode = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
     }

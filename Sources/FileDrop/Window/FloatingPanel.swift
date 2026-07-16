@@ -15,14 +15,10 @@ final class FloatingPanel: NSPanel {
         )
         isOpaque = false
         backgroundColor = .clear
-        // Reverted: re-enabling this introduced a faint square smudge at
-        // the *bottom* corners too (previously clean), on top of the
-        // pre-existing top-corner bug. The native shadow computes its shape
-        // from the window's alpha channel, and the rounded rect's own
-        // anti-aliased edge is apparently not clean enough for it — the
-        // panel's own SwiftUI shadow (which does look right) is what
-        // actually renders the drop shadow.
-        hasShadow = false
+        // The panel is a plain rectangle now (see ClipboardPanelView), so
+        // there's no rounded-corner alpha shape for the native shadow to get
+        // wrong — it renders a normal, correct soft drop shadow.
+        hasShadow = true
         level = .floating
         // The whole content area hosts clickable/draggable file tiles, so the
         // window must not move on every mouse-down inside it — only the

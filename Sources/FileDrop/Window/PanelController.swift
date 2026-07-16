@@ -8,7 +8,6 @@ final class PanelController {
     private(set) var panel: FloatingPanel!
     private var hostingView: NSHostingView<ClipboardPanelView>!
     private var cancellable: AnyCancellable?
-    private var dragStartFrameOrigin: NSPoint?
 
     func show() {
         if panel == nil {
@@ -29,29 +28,18 @@ final class PanelController {
 
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.frame = initialRect
-        // Without this the hosting view's own layer paints an opaque
-        // rectangle behind the SwiftUI content, defeating the panel's
-        // transparent, rounded-corner background. backgroundColor and
-        // isOpaque are separate CALayer properties — isOpaque is a
-        // "don't bother alpha-blending this layer" hint to Core Animation,
-        // and left at its default it can make undrawn (should-be-transparent)
-        // pixels render as solid instead of see-through, independent of
-        // backgroundColor being clear.
+        // Keeps the vibrancy material's translucency intact — without an
+        // explicit clear/non-opaque layer, the hosting view's own backing
+        // can otherwise paint solid rather than letting the blur through.
         hostingView.wantsLayer = true
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
         hostingView.layer?.isOpaque = false
-        // No cornerRadius/masksToBounds here: the SwiftUI content draws its
-        // own soft shadow that bleeds outside the panel's rounded rect, and
-        // clipping the hosting view itself would cut that shadow off.
         panel.contentView = hostingView
 
         positionInitialFrame(for: panel)
 
         self.panel = panel
         self.hostingView = hostingView
-
-        store.onHeaderDragChanged = { [weak self] translation in self?.headerDragChanged(translation) }
-        store.onHeaderDragEnded = { [weak self] in self?.dragStartFrameOrigin = nil }
 
         // The window's frame drives the SwiftUI content's proposed size, so
         // asking the content for its own preferred size via a GeometryReader
@@ -75,15 +63,6 @@ final class PanelController {
         let x = visibleFrame.maxX - Theme.panelWidth - 24
         let y = visibleFrame.maxY - 80 - 24
         panel.setFrame(NSRect(x: x, y: y, width: Theme.panelWidth, height: 80), display: true)
-    }
-
-    private func headerDragChanged(_ translation: CGSize) {
-        guard let panel else { return }
-        if dragStartFrameOrigin == nil {
-            dragStartFrameOrigin = panel.frame.origin
-        }
-        guard let start = dragStartFrameOrigin else { return }
-        panel.setFrameOrigin(NSPoint(x: start.x + translation.width, y: start.y - translation.height))
     }
 
     private func updateSize() {
