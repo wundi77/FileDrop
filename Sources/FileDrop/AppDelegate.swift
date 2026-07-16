@@ -16,19 +16,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setUpStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         item.button?.image = NSImage(systemSymbolName: "tray.full", accessibilityDescription: "FileDrop")
-
-        let menu = NSMenu()
-        let toggleItem = NSMenuItem(title: "Panel ein-/ausblenden", action: #selector(togglePanel), keyEquivalent: "")
-        toggleItem.target = self
-        menu.addItem(toggleItem)
-        menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        item.menu = menu
+        item.button?.target = self
+        item.button?.action = #selector(statusItemClicked(_:))
+        item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
 
         statusItem = item
     }
 
-    @objc private func togglePanel() {
+    // A left click toggles the panel directly, with no menu in the way.
+    // A right click still needs a way to quit, so it briefly attaches a menu
+    // and triggers it programmatically, then detaches it again — otherwise
+    // NSStatusItem shows that menu on every click (left included).
+    @objc private func statusItemClicked(_ sender: Any?) {
+        guard let event = NSApp.currentEvent else { return }
+        if event.type == .rightMouseUp {
+            showQuitMenu()
+        } else {
+            togglePanel()
+        }
+    }
+
+    private func showQuitMenu() {
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        statusItem.menu = menu
+        statusItem.button?.performClick(nil)
+        statusItem.menu = nil
+    }
+
+    private func togglePanel() {
         guard let panel = panelController.panel else {
             panelController.show()
             return

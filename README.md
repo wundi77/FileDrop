@@ -16,7 +16,8 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
   (via QuickLookThumbnailing, wie in Finder — z. B. tatsächliches Bild bei
   Fotos, erste Seite bei PDFs); fällt auf das generische Dateityp-Icon
   zurück, wenn QuickLook keine Vorschau erzeugen kann
-- Listenansicht zeigt die Dateigröße statt der Typ-Kennung neben jeder Datei
+- Beide Ansichten zeigen die Dateigröße statt der Typ-Kennung neben/unter
+  jeder Datei
 - Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)
 - Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen); schließt
   sich bei Klick an beliebiger Stelle außerhalb
@@ -27,7 +28,8 @@ Repository enthält die native SwiftUI/AppKit-Umsetzung.
 - Minimieren auf die Kopfzeile
 - Hell/Dunkel-Umschalter
 - Tooltips für alle Kopfzeilen-Icons (Hover zeigt die jeweilige Funktion)
-- Menüleisten-Icon zum Ein-/Ausblenden des Panels
+- Menüleisten-Icon: einfacher Klick blendet das Panel direkt ein/aus,
+  Rechtsklick zeigt „Beenden"
 - AirDrop-Button teilt die aktuell markierten Dateien über die native
   AirDrop-Freigabe
 - ZIP-Button packt die markierten Dateien in ein Archiv auf dem Schreibtisch

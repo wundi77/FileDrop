@@ -7,10 +7,6 @@ struct ClipboardFile: Identifiable, Equatable {
     var sizeBytes: Int64
 
     var name: String { url.lastPathComponent }
-    var ext: String {
-        let e = url.pathExtension
-        return e.isEmpty ? "—" : e.uppercased()
-    }
 
     var icon: NSImage { NSWorkspace.shared.icon(forFile: url.path) }
 

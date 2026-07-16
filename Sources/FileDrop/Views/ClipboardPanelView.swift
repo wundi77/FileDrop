@@ -17,7 +17,13 @@ struct ClipboardPanelView: View {
             }
         }
         .frame(width: Theme.panelWidth)
-        .background(VisualEffectView(material: .hudWindow, cornerRadius: Theme.Radius.panel))
+        // Plan B after repeated corner-clipping failures with NSVisualEffectView's
+        // .behindWindow blending: SwiftUI's own Material is pure SwiftUI/Core
+        // Animation, not a bridged AppKit view fighting the window server's
+        // compositing, so it respects clipShape the same way any other SwiftUI
+        // layer does — same guarantee that already made the panel's bottom
+        // corners work correctly.
+        .background(.regularMaterial)
         .background(palette.bodyBackground)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.panel, style: .continuous))
         .overlay(

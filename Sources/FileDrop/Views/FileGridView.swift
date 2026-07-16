@@ -62,7 +62,7 @@ struct FileTileView: View {
                 .padding(4)
             }
 
-            Text(file.ext)
+            Text(FileSizeFormatter.label(bytes: file.sizeBytes))
                 .font(.system(size: 9, weight: .bold, design: .monospaced))
                 .tracking(0.4)
                 .foregroundColor(palette.subText)

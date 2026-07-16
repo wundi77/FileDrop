@@ -62,11 +62,9 @@ struct ContextMenuView: View {
         }
         .padding(5)
         .frame(minWidth: 176)
-        .background(
-            RoundedRectangle(cornerRadius: Theme.Radius.contextMenu, style: .continuous)
-                .fill(palette.headerBackground)
-                .background(VisualEffectView(material: .menu).clipShape(RoundedRectangle(cornerRadius: Theme.Radius.contextMenu, style: .continuous)))
-        )
+        .background(.regularMaterial)
+        .background(palette.headerBackground)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.contextMenu, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.contextMenu, style: .continuous)
                 .stroke(palette.cardBorder, lineWidth: 1)
