@@ -20,6 +20,22 @@ struct ClipboardFile: Identifiable, Equatable {
         // size in the background.
         self.sizeBytes = Int64(values?.fileSize ?? 0)
     }
+
+    /// Item provider for dragging this file out to Finder/other apps.
+    ///
+    /// `NSItemProvider(contentsOf:)` reads the file's *data* and registers it
+    /// under its UTI — for the receiving side that's an anonymous typed data
+    /// blob with no name of its own, so Finder invents a generic one from
+    /// the type ("PDF-Dokument", "Internet-Adresse", …) and, for folders,
+    /// there's no single "data" to read at all, so it falls back to moving
+    /// the real folder instead of copying it. Registering the actual NSURL
+    /// instead makes it a real reference to the existing file: the original
+    /// name is preserved and the drop is a normal copy, not a move.
+    func makeDragItemProvider() -> NSItemProvider {
+        let provider = NSItemProvider(object: url as NSURL)
+        provider.suggestedName = name
+        return provider
+    }
 }
 
 enum FileSizeFormatter {
