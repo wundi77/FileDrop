@@ -34,9 +34,9 @@ nativer Fensterschatten sind der pragmatische Kompromiss.
   im Hintergrund berechnet. Dateien/Ordner lassen sich per Ziehen aus dem
   Panel wieder heraus in Finder/andere Apps ablegen — als echte Kopie mit
   Original-Namen, der Ausgangs-Eintrag bleibt in der Ablage erhalten (immer
-  nur die eine gezogene Datei; ein Versuch, bei einer Mehrfachauswahl die
+  nur die eine gezogene Datei — ein Versuch, bei einer Mehrfachauswahl die
   ganze Auswahl gemeinsam zu ziehen, hat Klicken/Ziehen komplett kaputt
-  gemacht und wurde zurückgenommen — siehe Kommentare in FileGridView.swift)
+  gemacht und wurde wieder zurückgenommen, siehe Git-Historie)
 - Nur die Kopfzeile bewegt das Fenster (per Drag) — der Dateibereich ist rein
   für Auswahl/Drag-out reserviert
 - Minimieren auf die Kopfzeile
