@@ -64,7 +64,8 @@ Sources/FileDrop/
   Views/                    Header, Grid-/Listenansicht, Kontextmenü, Drop-Overlay
   Window/                   Borderless NSPanel + Controller
 design/handoff/             Original-Design-Handoff (Referenz, nicht Teil der App)
-Scripts/generate_icon.swift  Zeichnet das App-Icon (alle .iconset-Größen)
+Resources/AppIcon.iconset/  Festes App-Icon (alle .iconset-Größen), wird bei jedem
+                             Build unverändert übernommen
 build.sh                     Baut ein fertiges FileDrop.app-Bundle
 ```
 
@@ -90,8 +91,8 @@ Menüleisten-Icon ein-/ausblenden.
 
 Der Build-Schritt:
 1. kompiliert im Release-Modus (`swift build -c release`),
-2. erzeugt bei jedem Lauf frisch ein App-Icon (`Scripts/generate_icon.swift`
-   zeichnet alle `.iconset`-Größen, `iconutil` packt sie zu `AppIcon.icns`),
+2. packt das feste Icon aus `Resources/AppIcon.iconset/` per `iconutil` zu
+   `AppIcon.icns` (dasselbe Icon bei jedem Build, kein Neu-Zeichnen),
 3. baut daraus `build/FileDrop.app` (Info.plist, Executable, Icon) und
    signiert es ad-hoc, damit Gatekeeper es ohne Warnung startet.
 
