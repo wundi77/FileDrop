@@ -9,6 +9,9 @@ final class ClipboardStore: ObservableObject {
     @Published var isDraggingOver: Bool = false
     @Published var hoveredFileID: UUID?
     @Published var contextMenuFileID: UUID?
+    /// User-adjustable strip background opacity, from barely-there (0.05) up
+    /// to fully opaque (1.0) — see OpacitySliderView.
+    @Published var stripOpacity: Double = 0.16
 
     var countLabel: String {
         let count = files.count

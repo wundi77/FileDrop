@@ -31,8 +31,18 @@ struct StripView: View {
                 onContextMenuAnchorChange(anchor.map { proxy[$0] })
             }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.13).opacity(0.38))
-        .background(.regularMaterial)
+        .background(
+            // Scaling only the tint color leaves the frosted-glass material
+            // underneath always at its own fixed opacity, so the strip could
+            // never get more than barely-translucent — fading the material
+            // itself in the same breath lets the low end of the slider go
+            // all the way down to just-barely-there.
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial)
+                Rectangle().fill(Color(red: 0.11, green: 0.11, blue: 0.13))
+            }
+            .opacity(store.stripOpacity)
+        )
         .overlay(Rectangle().fill(palette.border).frame(height: 1), alignment: .bottom)
         .overlay {
             if store.isDraggingOver {
@@ -90,6 +100,9 @@ struct StripView: View {
 
     private var actionArea: some View {
         VStack(spacing: 12) {
+            OpacitySliderView(value: $store.stripOpacity)
+                .frame(width: 136)
+
             Text(store.countLabel)
                 .font(.system(size: 11.5, weight: .medium))
                 .foregroundColor(palette.subText)

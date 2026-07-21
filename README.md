@@ -5,8 +5,8 @@
 > Menüleisten-Klick von oben unter der Menüleiste herausfährt. Der stabile
 > Panel-Stand ist als Tag `v1.0-stable` auf `main` gesichert.
 
-Eine macOS-Zwischenablage für Dateien: ein dunkler, deutlich transparenter
-Streifen über die komplette Bildschirmbreite (ein Sechstel der
+Eine macOS-Zwischenablage für Dateien: ein dunkler, in der Transparenz frei
+einstellbarer Streifen über die komplette Bildschirmbreite (ein Sechstel der
 Bildschirmhöhe, direkt unter der Menüleiste, ohne Rand oder Fensterschatten)
 sammelt per Drag & Drop abgelegte Dateien in einer einzelnen horizontalen Reihe.
 
@@ -28,6 +28,11 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
   Tooltip unterhalb der Kachel
 - Mehrfachauswahl nur per Shift-Klick (additiv); ein einfacher Klick
   markiert/wählt nichts aus, sondern dient nur dem Klick-und-Ziehen selbst
+- Leertaste bei ausgewählter (oder, falls keine Auswahl besteht, gerade
+  gehoverter) Datei öffnet die normale System-Vorschau (Quick Look)
+- Regler rechts oberhalb der Zähler-Anzeige (dünne Linie mit orangem
+  Ziehpunkt) stellt die Transparenz des gesamten Streifens frei ein, von
+  nahezu deckend bis kaum noch sichtbar
 - Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen), erscheint
   direkt unterhalb der angeklickten Kachel in kompakter Breite (eigenes,
   von der Streifenhöhe unabhängiges Fenster); schließt sich bei Klick an
@@ -58,9 +63,11 @@ Sources/FileDrop/
   AppDelegate.swift         Menüleisten-Icon, Activation Policy
   Models/                   ClipboardFile, ClipboardStore (State), ThumbnailLoader
   Theme/                    Farbtoken
-  Views/                    Streifen (StripView), Kontextmenü, Drop-Overlay, Tooltips
+  Views/                    Streifen (StripView), Transparenz-Regler,
+                             Kontextmenü, Drop-Overlay, Tooltips
   Window/                   Borderless NSPanel + Controller (Slide-Animation),
-                             separates Panel für das Kontextmenü
+                             separates Panel für das Kontextmenü,
+                             Quick-Look-Anbindung
 design/handoff/             Original-Design-Handoff (Referenz, nicht Teil der App)
 Resources/AppIcon.iconset/  Festes App-Icon (alle .iconset-Größen), wird bei jedem
                              Build unverändert übernommen

@@ -8,7 +8,9 @@ final class PanelController {
     private(set) var panel: FloatingPanel!
     private var hostingView: NSHostingView<StripView>!
     private var contextMenuController: ContextMenuPanelController!
+    private let quickLookController = QuickLookController()
     private var contextMenuFileIDCancellable: AnyCancellable?
+    private var spaceKeyMonitor: Any?
     /// True while the slide-up animation is running, so a re-toggle during
     /// the animation cleanly flips back to showing instead of racing the
     /// pending orderOut.
@@ -20,6 +22,12 @@ final class PanelController {
     private var lastContextMenuAnchor: CGRect?
 
     var isStripVisible: Bool { (panel?.isVisible ?? false) && !isAnimatingOut }
+
+    deinit {
+        if let spaceKeyMonitor {
+            NSEvent.removeMonitor(spaceKeyMonitor)
+        }
+    }
 
     func toggle() {
         if isStripVisible {
@@ -105,6 +113,27 @@ final class PanelController {
 
         contextMenuFileIDCancellable = store.$contextMenuFileID
             .sink { [weak self] _ in self?.refreshContextMenu() }
+
+        // SwiftUI has no direct hook for a bare space-bar shortcut here (no
+        // text field/button owns first responder), so catch it at the
+        // AppKit level instead, scoped to this panel only.
+        spaceKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, event.window === self.panel, event.charactersIgnoringModifiers == " " else {
+                return event
+            }
+            self.toggleQuickLook()
+            return nil
+        }
+    }
+
+    private func toggleQuickLook() {
+        let urls = store.selectedURLs.isEmpty ? hoveredURL.map { [$0] } ?? [] : store.selectedURLs
+        quickLookController.toggle(urls: urls)
+    }
+
+    private var hoveredURL: URL? {
+        guard let hoveredFileID = store.hoveredFileID else { return nil }
+        return store.files.first(where: { $0.id == hoveredFileID })?.url
     }
 
     private func refreshContextMenu() {
