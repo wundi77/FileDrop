@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
@@ -6,10 +7,17 @@ final class PanelController {
     let store = ClipboardStore()
     private(set) var panel: FloatingPanel!
     private var hostingView: NSHostingView<StripView>!
+    private var contextMenuController: ContextMenuPanelController!
+    private var contextMenuFileIDCancellable: AnyCancellable?
     /// True while the slide-up animation is running, so a re-toggle during
     /// the animation cleanly flips back to showing instead of racing the
     /// pending orderOut.
     private var isAnimatingOut = false
+    /// The strip's current on-screen frame, needed to translate the
+    /// right-clicked tile's local rect into a screen position for the
+    /// separate context menu panel.
+    private var stripScreenFrame: NSRect = .zero
+    private var lastContextMenuAnchor: CGRect?
 
     var isStripVisible: Bool { (panel?.isVisible ?? false) && !isAnimatingOut }
 
@@ -27,6 +35,7 @@ final class PanelController {
         }
         isAnimatingOut = false
         let frames = stripFrames()
+        stripScreenFrame = frames.visible
         panel.setFrame(frames.hidden, display: false)
         panel.orderFrontRegardless()
         panel.makeKey()
@@ -40,6 +49,7 @@ final class PanelController {
     func hide() {
         guard let panel, panel.isVisible else { return }
         isAnimatingOut = true
+        store.closeContextMenu()
         let frames = stripFrames()
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.26
@@ -69,9 +79,16 @@ final class PanelController {
 
     private func setUp() {
         let frames = stripFrames()
+        stripScreenFrame = frames.visible
         let panel = FloatingPanel(contentRect: frames.visible)
 
-        let hostingView = NSHostingView(rootView: StripView(store: store))
+        let contextMenuController = ContextMenuPanelController(store: store)
+
+        let hostingView = NSHostingView(rootView: StripView(store: store) { [weak self] anchorRect in
+            guard let self else { return }
+            self.lastContextMenuAnchor = anchorRect
+            self.refreshContextMenu()
+        })
         hostingView.frame = NSRect(origin: .zero, size: frames.visible.size)
         hostingView.autoresizingMask = [.width, .height]
         // Keeps the vibrancy material's translucency intact — without an
@@ -84,5 +101,18 @@ final class PanelController {
 
         self.panel = panel
         self.hostingView = hostingView
+        self.contextMenuController = contextMenuController
+
+        contextMenuFileIDCancellable = store.$contextMenuFileID
+            .sink { [weak self] _ in self?.refreshContextMenu() }
+    }
+
+    private func refreshContextMenu() {
+        contextMenuController.update(
+            anchorRect: lastContextMenuAnchor,
+            stripScreenFrame: stripScreenFrame,
+            fileID: store.contextMenuFileID,
+            palette: Theme.dark
+        )
     }
 }

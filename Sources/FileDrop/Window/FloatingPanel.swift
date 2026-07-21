@@ -14,9 +14,12 @@ final class FloatingPanel: NSPanel {
         )
         isOpaque = false
         backgroundColor = .clear
-        // The strip is a plain rectangle docked to the top edge, so the
-        // native shadow just draws a clean soft edge along its bottom.
-        hasShadow = true
+        // A native window shadow halos the *entire* rect, not just one
+        // edge — with the strip's left/right edges sitting flush against
+        // the screen bounds, that reads as an unwanted bright border all
+        // the way around. The strip draws its own thin bottom divider
+        // instead (see StripView), so no window shadow at all.
+        hasShadow = false
         level = .floating
         // The whole content area hosts clickable/draggable file tiles, so the
         // window must not move on any mouse-down inside it — the strip is

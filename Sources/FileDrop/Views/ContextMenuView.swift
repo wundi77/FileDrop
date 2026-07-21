@@ -19,6 +19,13 @@ private struct RightClickCatcher: NSViewRepresentable {
     final class RightClickView: NSView {
         var action: (() -> Void)?
 
+        // Without this, the very first right-click after the strip slides in
+        // (the window is never key/active yet) gets swallowed instead of
+        // reaching rightMouseDown — same fix as MultiItemDragHandle.
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            true
+        }
+
         override func rightMouseDown(with event: NSEvent) {
             action?()
         }
@@ -61,7 +68,14 @@ struct ContextMenuView: View {
             }
         }
         .padding(5)
-        .frame(minWidth: 176)
+        .frame(width: 176)
+        // Without this, the surrounding ZStack (sized by its own flexible
+        // Color.clear "click outside to dismiss" catcher) proposes its own
+        // near-full-strip width down to this view, and the menu items'
+        // .frame(maxWidth: .infinity) backgrounds happily stretch to fill
+        // it — this pins the card to its own intrinsic size regardless of
+        // what the parent proposes.
+        .fixedSize(horizontal: true, vertical: false)
         .background(.regularMaterial)
         .background(palette.headerBackground)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.contextMenu, style: .continuous))

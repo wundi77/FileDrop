@@ -5,10 +5,10 @@
 > Menüleisten-Klick von oben unter der Menüleiste herausfährt. Der stabile
 > Panel-Stand ist als Tag `v1.0-stable` auf `main` gesichert.
 
-Eine macOS-Zwischenablage für Dateien: ein dunkelgrauer, transparenter
+Eine macOS-Zwischenablage für Dateien: ein dunkler, deutlich transparenter
 Streifen über die komplette Bildschirmbreite (ein Sechstel der
-Bildschirmhöhe, direkt unter der Menüleiste) sammelt per Drag & Drop
-abgelegte Dateien in einer einzelnen horizontalen Reihe.
+Bildschirmhöhe, direkt unter der Menüleiste, ohne Rand oder Fensterschatten)
+sammelt per Drag & Drop abgelegte Dateien in einer einzelnen horizontalen Reihe.
 
 Der ursprüngliche Design-Handoff liegt in
 [`design/handoff/README.md`](design/handoff/README.md); die dort enthaltenen
@@ -26,9 +26,12 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
   horizontal
 - Unter jeder Kachel steht die Dateigröße; Hover zeigt den Dateinamen als
   Tooltip unterhalb der Kachel
-- Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)
-- Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen); schließt
-  sich bei Klick an beliebiger Stelle außerhalb
+- Mehrfachauswahl nur per Shift-Klick (additiv); ein einfacher Klick
+  markiert/wählt nichts aus, sondern dient nur dem Klick-und-Ziehen selbst
+- Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen), erscheint
+  direkt unterhalb der angeklickten Kachel in kompakter Breite (eigenes,
+  von der Streifenhöhe unabhängiges Fenster); schließt sich bei Klick an
+  beliebiger Stelle außerhalb
 - Drag & Drop zum Sammeln von Dateien und Ordnern; Ordnergröße wird rekursiv
   im Hintergrund berechnet. Dateien/Ordner lassen sich per Ziehen aus dem
   Streifen wieder heraus in Finder/andere Apps ablegen — als echte Kopie mit
@@ -56,7 +59,8 @@ Sources/FileDrop/
   Models/                   ClipboardFile, ClipboardStore (State), ThumbnailLoader
   Theme/                    Farbtoken
   Views/                    Streifen (StripView), Kontextmenü, Drop-Overlay, Tooltips
-  Window/                   Borderless NSPanel + Controller (Slide-Animation)
+  Window/                   Borderless NSPanel + Controller (Slide-Animation),
+                             separates Panel für das Kontextmenü
 design/handoff/             Original-Design-Handoff (Referenz, nicht Teil der App)
 Resources/AppIcon.iconset/  Festes App-Icon (alle .iconset-Größen), wird bei jedem
                              Build unverändert übernommen

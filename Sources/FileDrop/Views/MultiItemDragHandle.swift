@@ -7,10 +7,11 @@ import AppKit
 /// fight over the same mouseDown/mouseUp stream — whichever is topmost in
 /// the hit-test wins outright, which previously broke both click-to-select
 /// and single-file drag at once. Here, mouseDown/mouseDragged/mouseUp are
-/// handled by the same view: a plain click (no meaningful movement) selects
-/// the file; a drag past a small threshold starts a native multi-item
-/// dragging session carrying every currently-selected file, so the whole
-/// selection moves together, matching Finder.
+/// handled by the same view: a plain click (no meaningful movement) doesn't
+/// change the selection at all — only Shift-click adds/removes the tile from
+/// it. A drag past a small threshold starts a native multi-item dragging
+/// session carrying every currently-selected file, so the whole selection
+/// moves together, matching Finder.
 ///
 /// Must be attached via `.overlay(...)`, not `.background(...)`: SwiftUI's
 /// hosting layer routes real mouseDown/mouseUp only to AppKit views it
@@ -80,6 +81,9 @@ struct MultiItemDragHandle: NSViewRepresentable {
 
         override func mouseUp(with event: NSEvent) {
             guard !didStartDrag else { return }
+            // Plain clicks no longer touch the selection at all — only
+            // Shift-click marks/unmarks a tile, additively.
+            guard event.modifierFlags.contains(.shift) else { return }
             store?.toggleSelect(file.id)
         }
 

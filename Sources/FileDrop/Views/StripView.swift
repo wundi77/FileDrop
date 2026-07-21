@@ -6,6 +6,12 @@ import UniformTypeIdentifiers
 /// buttons on the right. Always dark, semi-transparent gray over a blur.
 struct StripView: View {
     @ObservedObject var store: ClipboardStore
+    /// The right-clicked tile's bounds, in this view's own local top-down
+    /// coordinate space, or nil once no tile is anchored. The strip's own
+    /// window is too short to draw the menu card inside it (see
+    /// ContextMenuPanelController), so this just hands the raw rect out to
+    /// AppKit, which positions an independent panel from it.
+    var onContextMenuAnchorChange: (CGRect?) -> Void = { _ in }
 
     private let palette = Theme.dark
 
@@ -21,8 +27,11 @@ struct StripView: View {
 
                 actionArea
             }
+            .onPreferenceChange(ContextMenuAnchorPreferenceKey.self) { anchor in
+                onContextMenuAnchorChange(anchor.map { proxy[$0] })
+            }
         }
-        .background(Color(red: 0.11, green: 0.11, blue: 0.13).opacity(0.72))
+        .background(Color(red: 0.11, green: 0.11, blue: 0.13).opacity(0.38))
         .background(.regularMaterial)
         .overlay(Rectangle().fill(palette.border).frame(height: 1), alignment: .bottom)
         .overlay {
@@ -31,20 +40,15 @@ struct StripView: View {
             }
         }
         .overlay {
-            if let contextID = store.contextMenuFileID, store.files.contains(where: { $0.id == contextID }) {
-                ZStack(alignment: .bottomTrailing) {
-                    // Catches clicks anywhere outside the menu card itself so
-                    // the menu dismisses on a normal click elsewhere, instead
-                    // of only via its own item taps.
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .onTapGesture { store.closeContextMenu() }
-
-                    ContextMenuView(store: store, palette: palette, fileID: contextID)
-                        .padding(.trailing, 230)
-                        .padding(.bottom, 14)
-                }
-                .transition(.opacity)
+            // Catches clicks anywhere outside the menu card itself so it
+            // dismisses on a normal click elsewhere, instead of only via its
+            // own item taps. The card itself now lives in a separate window,
+            // so this only needs to cover clicks elsewhere within the strip.
+            if store.contextMenuFileID != nil {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { store.closeContextMenu() }
+                    .transition(.opacity)
             }
         }
         .preferredColorScheme(.dark)
@@ -207,6 +211,9 @@ struct StripTileView: View {
         // The strip sits at the very top of the screen, so the bubble has to
         // open downwards — above the tile there is no window to draw into.
         .fileTooltip(file.name, isActive: isHovered, placement: .below)
+        .anchorPreference(key: ContextMenuAnchorPreferenceKey.self, value: .bounds) { anchor in
+            store.contextMenuFileID == file.id ? anchor : nil
+        }
         .contentShape(Rectangle())
         .overlay(MultiItemDragHandle(file: file, store: store))
         .onHover { hovering in

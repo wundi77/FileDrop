@@ -53,6 +53,21 @@ struct PanelTooltipPreferenceKey: PreferenceKey {
     }
 }
 
+// MARK: - Context menu anchoring
+//
+// The context menu used to sit at a fixed offset from the strip's corner,
+// which meant it landed nowhere near the tile that was actually right-clicked
+// once the strip filled up with more than a couple of files. Instead the
+// right-clicked tile publishes its own bounds the same way tooltips do, and
+// the strip reads that once, at the top level, to position the menu card
+// right next to that tile.
+struct ContextMenuAnchorPreferenceKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>?
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
+    }
+}
+
 struct HeaderIconButton: View {
     let systemName: String
     let title: String
