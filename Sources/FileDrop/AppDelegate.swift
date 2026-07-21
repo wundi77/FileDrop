@@ -24,17 +24,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = item
     }
 
-    // A left click toggles the panel directly, with no menu in the way.
-    // A right click shows the dropdown (launch-at-login, quit); it briefly
-    // attaches a menu and triggers it programmatically, then detaches it
-    // again — otherwise NSStatusItem shows that menu on every click (left
-    // included).
+    // A left click slides the strip in/out directly, with no menu in the
+    // way. A right click shows the dropdown (launch-at-login, quit); it
+    // briefly attaches a menu and triggers it programmatically, then
+    // detaches it again — otherwise NSStatusItem shows that menu on every
+    // click (left included).
     @objc private func statusItemClicked(_ sender: Any?) {
         guard let event = NSApp.currentEvent else { return }
         if event.type == .rightMouseUp {
             showMenu()
         } else {
-            togglePanel()
+            panelController.toggle()
         }
     }
 
@@ -71,15 +71,4 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func togglePanel() {
-        guard let panel = panelController.panel else {
-            panelController.show()
-            return
-        }
-        if panel.isVisible {
-            panel.orderOut(nil)
-        } else {
-            panelController.show()
-        }
-    }
 }

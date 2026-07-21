@@ -2,25 +2,13 @@ import Foundation
 import SwiftUI
 import AppKit
 
-enum ViewMode {
-    case grid
-    case list
-}
-
 @MainActor
 final class ClipboardStore: ObservableObject {
     @Published var files: [ClipboardFile] = []
     @Published var selectedIDs: Set<UUID> = []
-    @Published var viewMode: ViewMode = .grid
-    @Published var isDarkMode: Bool
-    @Published var isMinimized: Bool = false
     @Published var isDraggingOver: Bool = false
     @Published var hoveredFileID: UUID?
     @Published var contextMenuFileID: UUID?
-
-    init() {
-        self.isDarkMode = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-    }
 
     var countLabel: String {
         let count = files.count

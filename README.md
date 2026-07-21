@@ -1,57 +1,51 @@
 # FileDrop
 
-Eine schwebende macOS-Zwischenablage für Dateien: per Drag & Drop gesammelte
-Dateien liegen in einem frei platzierbaren Glas-Panel, das dauerhaft über dem
-Desktop schwebt — mit eigener Kopfzeile statt der normalen macOS-Titelleiste.
+> **Branch `design-experimente`:** Dieses Experiment ersetzt das frei
+> schwebende Glas-Panel durch einen bildschirmbreiten Streifen, der per
+> Menüleisten-Klick von oben unter der Menüleiste herausfährt. Der stabile
+> Panel-Stand ist als Tag `v1.0-stable` auf `main` gesichert.
 
-Die Optik- und Verhaltensvorgaben stammen aus dem Design-Handoff in
-[`design/handoff/README.md`](design/handoff/README.md) (Variante 1a,
-Glas/Vibrancy). Die dort enthaltenen `.dc.html`-Dateien sind interaktive
-Design-Referenzen (HTML-Prototypen), kein produktiver Code — dieses
-Repository enthält die native SwiftUI/AppKit-Umsetzung.
+Eine macOS-Zwischenablage für Dateien: ein dunkelgrauer, transparenter
+Streifen über die komplette Bildschirmbreite (ein Sechstel der
+Bildschirmhöhe, direkt unter der Menüleiste) sammelt per Drag & Drop
+abgelegte Dateien in einer einzelnen horizontalen Reihe.
 
-**Abweichung vom Handoff:** Das Panel hat rechteckige statt abgerundete Ecken.
-Fünf verschiedene technische Ansätze, die abgerundeten Ecken einer transparenten
-`NSPanel` mit Vibrancy-Hintergrund sauber darzustellen, sind an hartnäckigen
-AppKit/Core-Animation-Eigenheiten gescheitert (Reste blieben als undurchsichtige
-Flecken hinter den runden Ecken sichtbar). Rechteckige Ecken plus ein klassischer
-nativer Fensterschatten sind der pragmatische Kompromiss.
+Der ursprüngliche Design-Handoff liegt in
+[`design/handoff/README.md`](design/handoff/README.md); die dort enthaltenen
+`.dc.html`-Dateien sind interaktive Design-Referenzen (HTML-Prototypen), kein
+produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
 
 ## Funktionen
 
-- Grid- und Listenansicht der gesammelten Dateien mit echten Vorschaubildern
-  (via QuickLookThumbnailing, wie in Finder — z. B. tatsächliches Bild bei
-  Fotos, erste Seite bei PDFs); fällt auf das generische Dateityp-Icon
-  zurück, wenn QuickLook keine Vorschau erzeugen kann. Vorschaubilder werden
-  immer auf die normale Kachel-/Icon-Größe des Rasters begrenzt, unabhängig
-  vom Seitenverhältnis der Originaldatei
-- Beide Ansichten zeigen die Dateigröße statt der Typ-Kennung neben/unter
-  jeder Datei
+- Ein Klick aufs Menüleisten-Icon fährt den Streifen animiert von oben
+  herein bzw. wieder hinaus (er gleitet unter der Menüleiste hervor)
+- Eine einzelne, horizontale Kachelreihe mit echten Vorschaubildern (via
+  QuickLookThumbnailing, wie in Finder); fällt auf das generische
+  Dateityp-Icon zurück, wenn QuickLook keine Vorschau erzeugen kann. Bei
+  mehr Dateien als in eine Bildschirmbreite passen, scrollt die Reihe
+  horizontal
+- Unter jeder Kachel steht die Dateigröße; Hover zeigt den Dateinamen als
+  Tooltip unterhalb der Kachel
 - Mehrfachauswahl per einfachem Klick (kein Modifier nötig, additiv, bleibt markiert)
 - Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen); schließt
   sich bei Klick an beliebiger Stelle außerhalb
 - Drag & Drop zum Sammeln von Dateien und Ordnern; Ordnergröße wird rekursiv
   im Hintergrund berechnet. Dateien/Ordner lassen sich per Ziehen aus dem
-  Panel wieder heraus in Finder/andere Apps ablegen — als echte Kopie mit
+  Streifen wieder heraus in Finder/andere Apps ablegen — als echte Kopie mit
   Original-Namen, der Ausgangs-Eintrag bleibt in der Ablage erhalten. Sind
   mehrere Dateien markiert und eine davon wird gezogen, wird die gesamte
   Auswahl als Paket kopiert (wie im Finder), mit einem roten Zähler-Badge
   auf dem gezogenen Icon
-- Nur die Kopfzeile bewegt das Fenster (per Drag) — der Dateibereich ist rein
-  für Auswahl/Drag-out reserviert
-- Minimieren auf die Kopfzeile
-- Hell/Dunkel-Umschalter
-- Tooltips für alle Kopfzeilen-Icons (Hover zeigt die jeweilige Funktion)
-- Menüleisten-Icon: einfacher Klick blendet das Panel direkt ein/aus.
-  Rechtsklick zeigt ein Menü mit „Beim Start automatisch laden" (Haken zeigt
-  an, ob aktiviert; per Klick umschaltbar, über `SMAppService`) und „Beenden"
-- AirDrop-Button teilt die aktuell markierten Dateien über die native
-  AirDrop-Freigabe
-- ZIP-Button packt die markierten Dateien in ein Archiv auf dem Schreibtisch
-  und öffnet es im Finder (nutzt `/usr/bin/zip`, auf jedem Mac vorhanden)
+- Rechts im Streifen: Zähler (Anzahl + Gesamtgröße) und die vier
+  Aktions-Buttons — Ausgewählte löschen, Alle auswählen, AirDrop, ZIP-Export
+  auf den Schreibtisch (nutzt `/usr/bin/zip`); alle wirken nur auf die
+  aktuell markierten Dateien und tun bei leerer Auswahl nichts
+- Menüleisten-Icon per Rechtsklick: Menü mit „Beim Start automatisch laden"
+  (Haken zeigt an, ob aktiviert; über `SMAppService`) und „Beenden"
 
-Papierkorb-, AirDrop- und ZIP-Button wirken nur auf die aktuell markierten
-Dateien und tun bei leerer Auswahl nichts.
+Im Streifen-Konzept entfallen gegenüber dem Panel-Stand: Grid/Listen-Umschalter
+(es gibt nur die eine Reihe), Minimieren auf die Kopfzeile, Hell/Dunkel-Umschalter
+(der Streifen ist fest dunkel) und das Verschieben des Fensters.
 
 ## Projektstruktur
 
@@ -60,9 +54,9 @@ Sources/FileDrop/
   FileDropApp.swift        App-Einstiegspunkt (SwiftUI App, kein Fenster-Scene)
   AppDelegate.swift         Menüleisten-Icon, Activation Policy
   Models/                   ClipboardFile, ClipboardStore (State), ThumbnailLoader
-  Theme/                    Farbtoken (hell/dunkel)
-  Views/                    Header, Grid-/Listenansicht, Kontextmenü, Drop-Overlay
-  Window/                   Borderless NSPanel + Controller
+  Theme/                    Farbtoken
+  Views/                    Streifen (StripView), Kontextmenü, Drop-Overlay, Tooltips
+  Window/                   Borderless NSPanel + Controller (Slide-Animation)
 design/handoff/             Original-Design-Handoff (Referenz, nicht Teil der App)
 Resources/AppIcon.iconset/  Festes App-Icon (alle .iconset-Größen), wird bei jedem
                              Build unverändert übernommen
@@ -78,9 +72,9 @@ swift build
 swift run
 ```
 
-Die App läuft als Accessory-App ohne Dock-Icon; das Panel erscheint beim
-Start oben rechts auf dem Hauptbildschirm und lässt sich über das
-Menüleisten-Icon ein-/ausblenden.
+Die App läuft als Accessory-App ohne Dock-Icon; der Streifen fährt beim
+Start am oberen Bildschirmrand herein und lässt sich über das
+Menüleisten-Icon ein-/ausfahren.
 
 ## Fertiges App-Bundle bauen
 

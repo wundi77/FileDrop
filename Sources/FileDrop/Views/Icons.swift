@@ -87,10 +87,10 @@ struct HeaderIconButton: View {
 
 extension View {
     /// Publishes `title` as a panel-level tooltip (see PanelTooltipPreferenceKey)
-    /// while `isActive` is true, rendered above the view's bounds.
-    func fileTooltip(_ title: String, isActive: Bool) -> some View {
+    /// while `isActive` is true, rendered above or below the view's bounds.
+    func fileTooltip(_ title: String, isActive: Bool, placement: PanelTooltipPlacement = .above) -> some View {
         anchorPreference(key: PanelTooltipPreferenceKey.self, value: .bounds) { anchor in
-            isActive ? PanelTooltipInfo(title: title, anchor: anchor, placement: .above) : nil
+            isActive ? PanelTooltipInfo(title: title, anchor: anchor, placement: placement) : nil
         }
     }
 }

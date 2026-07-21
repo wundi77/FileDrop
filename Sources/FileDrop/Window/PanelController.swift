@@ -1,33 +1,79 @@
 import AppKit
-import Combine
 import SwiftUI
 
 @MainActor
 final class PanelController {
     let store = ClipboardStore()
     private(set) var panel: FloatingPanel!
-    private var hostingView: NSHostingView<ClipboardPanelView>!
-    private var cancellable: AnyCancellable?
+    private var hostingView: NSHostingView<StripView>!
+    /// True while the slide-up animation is running, so a re-toggle during
+    /// the animation cleanly flips back to showing instead of racing the
+    /// pending orderOut.
+    private var isAnimatingOut = false
+
+    var isStripVisible: Bool { (panel?.isVisible ?? false) && !isAnimatingOut }
+
+    func toggle() {
+        if isStripVisible {
+            hide()
+        } else {
+            show()
+        }
+    }
 
     func show() {
         if panel == nil {
             setUp()
         }
+        isAnimatingOut = false
+        let frames = stripFrames()
+        panel.setFrame(frames.hidden, display: false)
         panel.orderFrontRegardless()
         panel.makeKey()
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.32
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().setFrame(frames.visible, display: true)
+        }
+    }
+
+    func hide() {
+        guard let panel, panel.isVisible else { return }
+        isAnimatingOut = true
+        let frames = stripFrames()
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.26
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            panel.animator().setFrame(frames.hidden, display: true)
+        }, completionHandler: {
+            DispatchQueue.main.async { [weak self] in
+                guard let self, self.isAnimatingOut else { return }
+                self.panel.orderOut(nil)
+                self.isAnimatingOut = false
+            }
+        })
+    }
+
+    /// Full screen width, one sixth of the screen height, docked directly
+    /// below the menu bar. The hidden frame sits entirely above the visible
+    /// area, so the slide animation looks like the strip glides out from
+    /// under the menu bar.
+    private func stripFrames() -> (hidden: NSRect, visible: NSRect) {
+        let screen = NSScreen.main ?? NSScreen.screens[0]
+        let height = floor(screen.frame.height * Theme.stripHeightFraction)
+        let topY = screen.visibleFrame.maxY
+        let visible = NSRect(x: screen.frame.minX, y: topY - height, width: screen.frame.width, height: height)
+        let hidden = visible.offsetBy(dx: 0, dy: height)
+        return (hidden, visible)
     }
 
     private func setUp() {
-        let initialRect = NSRect(x: 0, y: 0, width: Theme.panelWidth, height: 80)
-        let panel = FloatingPanel(contentRect: initialRect)
+        let frames = stripFrames()
+        let panel = FloatingPanel(contentRect: frames.visible)
 
-        let contentView = ClipboardPanelView(
-            store: store,
-            onClose: { [weak panel] in panel?.orderOut(nil) }
-        )
-
-        let hostingView = NSHostingView(rootView: contentView)
-        hostingView.frame = initialRect
+        let hostingView = NSHostingView(rootView: StripView(store: store))
+        hostingView.frame = NSRect(origin: .zero, size: frames.visible.size)
+        hostingView.autoresizingMask = [.width, .height]
         // Keeps the vibrancy material's translucency intact — without an
         // explicit clear/non-opaque layer, the hosting view's own backing
         // can otherwise paint solid rather than letting the blur through.
@@ -36,53 +82,7 @@ final class PanelController {
         hostingView.layer?.isOpaque = false
         panel.contentView = hostingView
 
-        positionInitialFrame(for: panel)
-
         self.panel = panel
         self.hostingView = hostingView
-
-        // The window's frame drives the SwiftUI content's proposed size, so
-        // asking the content for its own preferred size via a GeometryReader
-        // would just echo the current (stale) frame back. Instead measure the
-        // hosting view's natural fitting size after each state change and
-        // resize the window to match.
-        cancellable = store.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                DispatchQueue.main.async { self?.updateSize() }
-            }
-        updateSize()
-        // The very first fittingSize query can land before SwiftUI's initial
-        // layout pass has committed; run one more pass on the next tick.
-        DispatchQueue.main.async { [weak self] in self?.updateSize() }
-    }
-
-    private func positionInitialFrame(for panel: NSPanel) {
-        guard let screen = NSScreen.main else { return }
-        let visibleFrame = screen.visibleFrame
-        let x = visibleFrame.maxX - Theme.panelWidth - 24
-        let y = visibleFrame.maxY - 80 - 24
-        panel.setFrame(NSRect(x: x, y: y, width: Theme.panelWidth, height: 80), display: true)
-    }
-
-    private func updateSize() {
-        guard let hostingView else { return }
-        resize(to: hostingView.fittingSize)
-    }
-
-    private func resize(to size: CGSize) {
-        guard let panel, size.height > 0 else { return }
-        let currentFrame = panel.frame
-        // Round down rather than up: a window even fractionally taller than
-        // the SwiftUI content leaves a sliver where the content draws
-        // nothing, which is exactly where a stray opaque pixel would be
-        // hardest to notice except right at the rounded corners.
-        let newHeight = floor(size.height)
-        guard abs(currentFrame.height - newHeight) > 0.5 else { return }
-
-        // Keep the top edge anchored so the panel grows/shrinks downward.
-        let newOrigin = NSPoint(x: currentFrame.origin.x, y: currentFrame.maxY - newHeight)
-        let newFrame = NSRect(origin: newOrigin, size: NSSize(width: Theme.panelWidth, height: newHeight))
-        panel.setFrame(newFrame, display: true)
     }
 }

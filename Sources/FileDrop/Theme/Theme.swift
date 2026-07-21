@@ -55,6 +55,6 @@ enum Theme {
         static let contextMenu: CGFloat = 10
     }
 
-    static let panelWidth: CGFloat = 500
-    static let bodyMaxHeight: CGFloat = 460
+    /// Fraction of the screen height the top strip occupies.
+    static let stripHeightFraction: CGFloat = 1.0 / 6.0
 }
