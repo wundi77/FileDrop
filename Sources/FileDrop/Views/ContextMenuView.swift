@@ -58,13 +58,20 @@ struct ContextMenuView: View {
             item("Löschen") {
                 store.removeFile(fileID)
             }
-            item("Kopieren") {
+            item(copyLabel) {
                 store.copyToPasteboard(fileID)
                 store.closeContextMenu()
             }
             item("Im Finder anzeigen") {
                 store.revealInFinder(fileID)
                 store.closeContextMenu()
+            }
+            item("Öffnen mit …") {
+                let url = store.files.first(where: { $0.id == fileID })?.url
+                store.closeContextMenu()
+                if let url {
+                    OpenWithMenu.show(for: url)
+                }
             }
         }
         .padding(5)
@@ -88,6 +95,11 @@ struct ContextMenuView: View {
 
     private func item(_ title: String, action: @escaping () -> Void) -> some View {
         ContextMenuItem(title: title, palette: palette, action: action)
+    }
+
+    private var copyLabel: String {
+        let selected = store.selectedIDs
+        return selected.contains(fileID) && selected.count > 1 ? "Auswahl kopieren" : "Kopieren"
     }
 }
 

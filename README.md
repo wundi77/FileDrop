@@ -1,9 +1,10 @@
 # FileDrop
 
-> **Branch `design-experimente`:** Dieses Experiment ersetzt das frei
-> schwebende Glas-Panel durch einen bildschirmbreiten Streifen, der per
-> Menüleisten-Klick von oben unter der Menüleiste herausfährt. Der stabile
-> Panel-Stand ist als Tag `v1.0-stable` auf `main` gesichert.
+> **Branch `filedrop-erweiterung`:** Erweitert den seit `main` aktiven
+> Streifen-Stand (Tag `v2.0-strip`) um weitere Funktionen (Ablagen/Reiter,
+> globaler Shortcut, Cmd+V-Einfügen, Auto-Einklappen, Einstellungsfenster,
+> Teilen-Menü, Bildkonvertierung u. a.). Der alte, frei schwebende
+> Glas-Panel-Stand ist als Tag `v1.0-stable` gesichert.
 
 Eine macOS-Zwischenablage für Dateien: ein dunkler, in der Transparenz frei
 einstellbarer Streifen über die komplette Bildschirmbreite (ein Sechstel der
@@ -33,10 +34,12 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
 - Regler rechts oberhalb der Zähler-Anzeige (dünne Linie mit orangem
   Ziehpunkt) stellt die Transparenz des gesamten Streifens frei ein, von
   nahezu deckend bis kaum noch sichtbar
-- Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen), erscheint
-  direkt unterhalb der angeklickten Kachel in kompakter Breite (eigenes,
-  von der Streifenhöhe unabhängiges Fenster); schließt sich bei Klick an
-  beliebiger Stelle außerhalb
+- Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen, Öffnen
+  mit …), erscheint direkt unterhalb der angeklickten Kachel in kompakter
+  Breite (eigenes, von der Streifenhöhe unabhängiges Fenster); schließt sich
+  bei Klick an beliebiger Stelle außerhalb. „Kopieren" kopiert bei
+  bestehender Mehrfachauswahl die gesamte Auswahl statt nur der
+  angeklickten Datei; „Öffnen mit …" zeigt das native App-Auswahlmenü
 - Drag & Drop zum Sammeln von Dateien und Ordnern; Ordnergröße wird rekursiv
   im Hintergrund berechnet. Dateien/Ordner lassen sich per Ziehen aus dem
   Streifen wieder heraus in Finder/andere Apps ablegen — als echte Kopie mit

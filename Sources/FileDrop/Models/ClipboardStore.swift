@@ -102,11 +102,16 @@ final class ClipboardStore: ObservableObject {
         NSWorkspace.shared.activateFileViewerSelecting([file.url])
     }
 
+    /// Copies just the one file, unless it's part of a larger current
+    /// selection — then the whole selection is copied, matching Finder's
+    /// "act on the whole selection" behavior for a right-click within it.
     func copyToPasteboard(_ id: UUID) {
-        guard let file = files.first(where: { $0.id == id }) else { return }
+        let ids = selectedIDs.contains(id) ? selectedIDs : [id]
+        let urls = files.filter { ids.contains($0.id) }.map(\.url)
+        guard !urls.isEmpty else { return }
         let pb = NSPasteboard.general
         pb.clearContents()
-        pb.writeObjects([file.url as NSURL])
+        pb.writeObjects(urls.map { $0 as NSURL })
     }
 
     var selectedURLs: [URL] {
