@@ -19,7 +19,13 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
 ## Funktionen
 
 - Ein Klick aufs Menüleisten-Icon fährt den Streifen animiert von oben
-  herein bzw. wieder hinaus (er gleitet unter der Menüleiste hervor)
+  herein bzw. wieder hinaus (er gleitet unter der Menüleiste hervor); ein
+  globaler Tastatur-Shortcut (⌃⌥D, systemweit, unabhängig von der
+  Vordergrund-App) macht dasselbe
+- Mehrere Ablagen ("Stapel", wie bei Yoink): schmale Reiter-Leiste oben im
+  Streifen, jede Ablage hat ihre eigenen Dateien und ihre eigene Auswahl;
+  „+" legt eine neue Ablage an, Rechtsklick auf einen Reiter schließt sie
+  wieder (mindestens eine bleibt immer bestehen)
 - Eine einzelne, horizontale Kachelreihe mit echten Vorschaubildern (via
   QuickLookThumbnailing, wie in Finder); fällt auf das generische
   Dateityp-Icon zurück, wenn QuickLook keine Vorschau erzeugen kann. Bei
@@ -31,9 +37,16 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
   markiert/wählt nichts aus, sondern dient nur dem Klick-und-Ziehen selbst
 - Leertaste bei ausgewählter (oder, falls keine Auswahl besteht, gerade
   gehoverter) Datei öffnet die normale System-Vorschau (Quick Look)
+- Cmd+V fügt Dateien direkt aus der Zwischenablage ein, genau wie ein
+  Drag & Drop
+- Sobald eine Kachel aus dem Streifen heraus gezogen wird, fährt der
+  Streifen sofort selbstständig wieder ein (wie bei Yoink) und lässt so
+  Platz für den Drop-Zielbereich; die laufende Drag-Session bleibt davon
+  unberührt
 - Regler rechts oberhalb der Zähler-Anzeige (dünne Linie mit orangem
   Ziehpunkt) stellt die Transparenz des gesamten Streifens frei ein, von
-  nahezu deckend bis kaum noch sichtbar
+  nahezu deckend bis kaum noch sichtbar; der Wert bleibt über Neustarts
+  hinweg erhalten
 - Rechtsklick-Kontextmenü (Löschen, Kopieren, Im Finder anzeigen, Öffnen
   mit …), erscheint direkt unterhalb der angeklickten Kachel in kompakter
   Breite (eigenes, von der Streifenhöhe unabhängiges Fenster); schließt sich
@@ -47,12 +60,21 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
   mehrere Dateien markiert und eine davon wird gezogen, wird die gesamte
   Auswahl als Paket kopiert (wie im Finder), mit einem roten Zähler-Badge
   auf dem gezogenen Icon
-- Rechts im Streifen: Zähler (Anzahl + Gesamtgröße) und die vier
-  Aktions-Buttons — Ausgewählte löschen, Alle auswählen, AirDrop, ZIP-Export
-  auf den Schreibtisch (nutzt `/usr/bin/zip`); alle wirken nur auf die
-  aktuell markierten Dateien und tun bei leerer Auswahl nichts
+- Rechts im Streifen: Zähler (Anzahl + Gesamtgröße) und die Aktions-Buttons
+  — Ausgewählte löschen, Alle auswählen, AirDrop, systemweites Teilen-Menü
+  (Mail, Nachrichten, etc. über `NSSharingServicePicker`), Bilder
+  verkleinern/konvertieren (JPEG/PNG, optionale Maximalgröße, JPEG-Qualität
+  — Ergebnis landet auf dem Schreibtisch) und ZIP-Export auf den
+  Schreibtisch (nutzt `/usr/bin/zip`); alle wirken nur auf die aktuell
+  markierten Dateien (der Bild-Button nur auf die Bilder darin) und tun bei
+  leerer Auswahl nichts
 - Menüleisten-Icon per Rechtsklick: Menü mit „Beim Start automatisch laden"
-  (Haken zeigt an, ob aktiviert; über `SMAppService`) und „Beenden"
+  (Haken zeigt an, ob aktiviert; über `SMAppService`), „Einstellungen …"
+  (⌘,) und „Beenden"
+- Einstellungsfenster: Streifenhöhe (Anteil der Bildschirmhöhe),
+  Standard-Transparenz und Bildschirmwahl bei mehreren Monitoren
+  (persistiert über `UserDefaults`, fällt automatisch auf den Hauptbildschirm
+  zurück, falls der gewählte Monitor nicht mehr angeschlossen ist)
 
 Im Streifen-Konzept entfallen gegenüber dem Panel-Stand: Grid/Listen-Umschalter
 (es gibt nur die eine Reihe), Minimieren auf die Kopfzeile, Hell/Dunkel-Umschalter
@@ -63,14 +85,18 @@ Im Streifen-Konzept entfallen gegenüber dem Panel-Stand: Grid/Listen-Umschalter
 ```
 Sources/FileDrop/
   FileDropApp.swift        App-Einstiegspunkt (SwiftUI App, kein Fenster-Scene)
-  AppDelegate.swift         Menüleisten-Icon, Activation Policy
-  Models/                   ClipboardFile, ClipboardStore (State), ThumbnailLoader
+  AppDelegate.swift         Menüleisten-Icon, Activation Policy, globaler Shortcut
+  Models/                   ClipboardFile, ClipboardStore (State, inkl. Shelves),
+                             AppSettings (persistierte Einstellungen),
+                             ImageExportService, ThumbnailLoader
   Theme/                    Farbtoken
-  Views/                    Streifen (StripView), Transparenz-Regler,
-                             Kontextmenü, Drop-Overlay, Tooltips
+  Views/                    Streifen (StripView) inkl. Ablagen-Reiter,
+                             Transparenz-Regler, Kontextmenü, Einstellungsfenster,
+                             Bild-Export-Popover, Drop-Overlay, Tooltips
   Window/                   Borderless NSPanel + Controller (Slide-Animation),
                              separates Panel für das Kontextmenü,
-                             Quick-Look-Anbindung
+                             Quick-Look-Anbindung, globaler Hotkey (Carbon),
+                             "Öffnen mit …" (natives NSMenu), Einstellungsfenster
 design/handoff/             Original-Design-Handoff (Referenz, nicht Teil der App)
 Resources/AppIcon.iconset/  Festes App-Icon (alle .iconset-Größen), wird bei jedem
                              Build unverändert übernommen
