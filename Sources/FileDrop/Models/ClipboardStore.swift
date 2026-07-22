@@ -2,10 +2,35 @@ import Foundation
 import SwiftUI
 import AppKit
 
+/// One independent file collection ("Ablage"), the way Yoink has multiple
+/// shelves — a value type so mutating it through ClipboardStore's `shelves`
+/// array (a stored @Published property) publishes changes the normal way,
+/// with no extra objectWillChange plumbing needed.
+struct Shelf: Identifiable, Equatable {
+    let id = UUID()
+    var name: String
+    var files: [ClipboardFile] = []
+    var selectedIDs: Set<UUID> = []
+}
+
 @MainActor
 final class ClipboardStore: ObservableObject {
-    @Published var files: [ClipboardFile] = []
-    @Published var selectedIDs: Set<UUID> = []
+    @Published var shelves: [Shelf] = [Shelf(name: "1")]
+    @Published var activeShelfIndex: Int = 0
+
+    /// The active shelf's files/selection, proxied through so every existing
+    /// call site (addFiles, removeFile, toggleSelect, …) keeps working
+    /// unchanged — they all just read/write "the current files" without
+    /// needing to know shelves exist at all.
+    var files: [ClipboardFile] {
+        get { shelves[activeShelfIndex].files }
+        set { shelves[activeShelfIndex].files = newValue }
+    }
+    var selectedIDs: Set<UUID> {
+        get { shelves[activeShelfIndex].selectedIDs }
+        set { shelves[activeShelfIndex].selectedIDs = newValue }
+    }
+
     @Published var isDraggingOver: Bool = false
     @Published var hoveredFileID: UUID?
     @Published var contextMenuFileID: UUID?
@@ -20,6 +45,32 @@ final class ClipboardStore: ObservableObject {
     /// file starts moving out of it (Yoink-style), before the drag even
     /// reaches another app.
     var onDragWillStart: (() -> Void)?
+
+    func switchToShelf(_ index: Int) {
+        guard shelves.indices.contains(index) else { return }
+        activeShelfIndex = index
+        hoveredFileID = nil
+        contextMenuFileID = nil
+    }
+
+    func addShelf() {
+        shelves.append(Shelf(name: "\(shelves.count + 1)"))
+        switchToShelf(shelves.count - 1)
+    }
+
+    /// Always leaves at least one shelf behind — there's no "close FileDrop
+    /// entirely" concept here, just always-one-more-tab-than-zero.
+    func closeShelf(at index: Int) {
+        guard shelves.count > 1, shelves.indices.contains(index) else { return }
+        shelves.remove(at: index)
+        if activeShelfIndex >= shelves.count {
+            activeShelfIndex = shelves.count - 1
+        } else if activeShelfIndex > index {
+            activeShelfIndex -= 1
+        }
+        hoveredFileID = nil
+        contextMenuFileID = nil
+    }
 
     var countLabel: String {
         let count = files.count
@@ -42,8 +93,16 @@ final class ClipboardStore: ObservableObject {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             let size = Self.recursiveSize(of: url)
             DispatchQueue.main.async {
-                guard let self, let idx = self.files.firstIndex(where: { $0.id == id }) else { return }
-                self.files[idx].sizeBytes = size
+                // Searches every shelf, not just the active one: the user
+                // may have switched shelves while this was still computing,
+                // and the file being sized lives wherever it was dropped,
+                // not wherever the strip happens to be showing right now.
+                guard let self else { return }
+                for shelfIdx in self.shelves.indices {
+                    guard let fileIdx = self.shelves[shelfIdx].files.firstIndex(where: { $0.id == id }) else { continue }
+                    self.shelves[shelfIdx].files[fileIdx].sizeBytes = size
+                    break
+                }
             }
         }
     }

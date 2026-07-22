@@ -21,20 +21,29 @@ struct StripView: View {
     var onImageExportRequest: (CGRect, [URL]) -> Void = { _, _ in }
 
     private let palette = Theme.dark
+    private let shelfTabBarHeight: CGFloat = 26
     @State private var shareButtonFrame: CGRect = .zero
     @State private var imageExportButtonFrame: CGRect = .zero
 
     var body: some View {
         GeometryReader { proxy in
-            HStack(spacing: 0) {
-                fileRow(height: proxy.size.height)
+            VStack(spacing: 0) {
+                shelfTabBar
 
                 Rectangle()
                     .fill(palette.divider)
-                    .frame(width: 1)
-                    .padding(.vertical, 14)
+                    .frame(height: 1)
 
-                actionArea
+                HStack(spacing: 0) {
+                    fileRow(height: proxy.size.height - shelfTabBarHeight - 1)
+
+                    Rectangle()
+                        .fill(palette.divider)
+                        .frame(width: 1)
+                        .padding(.vertical, 14)
+
+                    actionArea
+                }
             }
             .onPreferenceChange(ContextMenuAnchorPreferenceKey.self) { anchor in
                 onContextMenuAnchorChange(anchor.map { proxy[$0] })
@@ -89,6 +98,46 @@ struct StripView: View {
                 PanelTooltipOverlay(info: info, palette: palette)
             }
         }
+    }
+
+    private var shelfTabBar: some View {
+        HStack(spacing: 6) {
+            ForEach(store.shelves.indices, id: \.self) { index in
+                let shelf = store.shelves[index]
+                let isActive = index == store.activeShelfIndex
+                Text(shelf.name)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(isActive ? palette.text : palette.subText)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule().fill(isActive ? palette.accent.opacity(0.35) : Color.clear)
+                    )
+                    .contentShape(Capsule())
+                    .onTapGesture { store.switchToShelf(index) }
+                    .contextMenu {
+                        if store.shelves.count > 1 {
+                            Button("Ablage schließen") { store.closeShelf(at: index) }
+                        }
+                    }
+            }
+
+            Button {
+                store.addShelf()
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(palette.subText)
+                    .frame(width: 18, height: 18)
+                    .background(Circle().fill(palette.hoverFill))
+            }
+            .buttonStyle(.plain)
+            .help("Neue Ablage")
+
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .frame(height: shelfTabBarHeight)
     }
 
     @ViewBuilder
