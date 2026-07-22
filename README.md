@@ -20,8 +20,8 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
 
 - Ein Klick aufs Menüleisten-Icon fährt den Streifen animiert von oben
   herein bzw. wieder hinaus (er gleitet unter der Menüleiste hervor); ein
-  globaler Tastatur-Shortcut (⌃⌥D, systemweit, unabhängig von der
-  Vordergrund-App) macht dasselbe
+  globaler Tastatur-Shortcut (Standard ⌃⌥D, systemweit, unabhängig von der
+  Vordergrund-App, frei einstellbar in den Einstellungen) macht dasselbe
 - Mehrere Ablagen ("Stapel", wie bei Yoink): schmale Reiter-Leiste oben im
   Streifen, jede Ablage hat ihre eigenen Dateien und ihre eigene Auswahl;
   „+" legt eine neue Ablage an, Rechtsklick auf einen Reiter schließt sie
@@ -71,10 +71,14 @@ produktiver Code. Das Streifen-Konzept dieses Branches weicht bewusst davon ab.
 - Menüleisten-Icon per Rechtsklick: Menü mit „Beim Start automatisch laden"
   (Haken zeigt an, ob aktiviert; über `SMAppService`), „Einstellungen …"
   (⌘,) und „Beenden"
-- Einstellungsfenster: Streifenhöhe (Anteil der Bildschirmhöhe),
-  Standard-Transparenz und Bildschirmwahl bei mehreren Monitoren
-  (persistiert über `UserDefaults`, fällt automatisch auf den Hauptbildschirm
-  zurück, falls der gewählte Monitor nicht mehr angeschlossen ist)
+- Einstellungsfenster: eigene Tastenkombination für den globalen Shortcut
+  (Klick auf die aktuelle Kombination, dann die gewünschte Tasten drücken —
+  mindestens eine Zusatztaste ⌃/⌥/⇧/⌘ nötig; „Zurücksetzen" stellt ⌃⌥D
+  wieder her), Streifenhöhe (Anteil der Bildschirmhöhe), Standard-Transparenz
+  und Bildschirmwahl bei mehreren Monitoren (alles persistiert über
+  `UserDefaults`; die Bildschirmwahl fällt automatisch auf den
+  Hauptbildschirm zurück, falls der gewählte Monitor nicht mehr
+  angeschlossen ist)
 
 Im Streifen-Konzept entfallen gegenüber dem Panel-Stand: Grid/Listen-Umschalter
 (es gibt nur die eine Reihe), Minimieren auf die Kopfzeile, Hell/Dunkel-Umschalter
