@@ -10,7 +10,7 @@ final class PanelController {
     private var contextMenuController: ContextMenuPanelController!
     private let quickLookController = QuickLookController()
     private var contextMenuFileIDCancellable: AnyCancellable?
-    private var spaceKeyMonitor: Any?
+    private var keyMonitor: Any?
     /// True while the slide-up animation is running, so a re-toggle during
     /// the animation cleanly flips back to showing instead of racing the
     /// pending orderOut.
@@ -24,8 +24,8 @@ final class PanelController {
     var isStripVisible: Bool { (panel?.isVisible ?? false) && !isAnimatingOut }
 
     deinit {
-        if let spaceKeyMonitor {
-            NSEvent.removeMonitor(spaceKeyMonitor)
+        if let keyMonitor {
+            NSEvent.removeMonitor(keyMonitor)
         }
     }
 
@@ -120,15 +120,21 @@ final class PanelController {
         contextMenuFileIDCancellable = store.$contextMenuFileID
             .sink { [weak self] _ in self?.refreshContextMenu() }
 
-        // SwiftUI has no direct hook for a bare space-bar shortcut here (no
-        // text field/button owns first responder), so catch it at the
-        // AppKit level instead, scoped to this panel only.
-        spaceKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, event.window === self.panel, event.charactersIgnoringModifiers == " " else {
-                return event
+        // SwiftUI has no direct hook for a bare space-bar shortcut (no text
+        // field/button owns first responder) or for a paste command outside
+        // an actual text field, so catch both at the AppKit level instead,
+        // scoped to this panel only.
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, event.window === self.panel else { return event }
+            if event.charactersIgnoringModifiers == " " {
+                self.toggleQuickLook()
+                return nil
             }
-            self.toggleQuickLook()
-            return nil
+            if event.modifierFlags.contains(.command), event.charactersIgnoringModifiers?.lowercased() == "v" {
+                self.pasteFromClipboard()
+                return nil
+            }
+            return event
         }
     }
 
@@ -140,6 +146,12 @@ final class PanelController {
     private var hoveredURL: URL? {
         guard let hoveredFileID = store.hoveredFileID else { return nil }
         return store.files.first(where: { $0.id == hoveredFileID })?.url
+    }
+
+    private func pasteFromClipboard() {
+        guard let urls = NSPasteboard.general.readObjects(forClasses: [NSURL.self], options: nil) as? [URL],
+              !urls.isEmpty else { return }
+        store.addFiles(urls: urls)
     }
 
     private func showSharePicker(relativeTo rect: CGRect, urls: [URL]) {
