@@ -76,6 +76,7 @@ struct MultiItemDragHandle: NSViewRepresentable {
             let dy = event.locationInWindow.y - mouseDownLocation.y
             guard (dx * dx + dy * dy) > dragThreshold else { return }
             didStartDrag = true
+            store?.onDragWillStart?()
             startDraggingSession(with: event)
         }
 

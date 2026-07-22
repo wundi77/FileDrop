@@ -12,6 +12,11 @@ final class ClipboardStore: ObservableObject {
     /// User-adjustable strip background opacity, from barely-there (0.05) up
     /// to fully opaque (1.0) — see OpacitySliderView.
     @Published var stripOpacity: Double = 0.16
+    /// Fired the moment a tile drag crosses the drag threshold — lets
+    /// PanelController auto-collapse the strip out of the way as soon as a
+    /// file starts moving out of it (Yoink-style), before the drag even
+    /// reaches another app.
+    var onDragWillStart: (() -> Void)?
 
     var countLabel: String {
         let count = files.count

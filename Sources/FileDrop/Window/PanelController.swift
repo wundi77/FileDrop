@@ -120,6 +120,8 @@ final class PanelController {
         contextMenuFileIDCancellable = store.$contextMenuFileID
             .sink { [weak self] _ in self?.refreshContextMenu() }
 
+        store.onDragWillStart = { [weak self] in self?.hide() }
+
         // SwiftUI has no direct hook for a bare space-bar shortcut (no text
         // field/button owns first responder) or for a paste command outside
         // an actual text field, so catch both at the AppKit level instead,
