@@ -10,6 +10,7 @@ enum SymbolIcon {
     static let selectAll = "checkmark.square"
     static let airdrop = "personalhotspot"
     static let share = "square.and.arrow.up"
+    static let imageExport = "photo"
     static let zip = "doc.zipper"
     static let gridView = "square.grid.2x2"
     static let listView = "list.bullet"
@@ -77,6 +78,17 @@ struct ContextMenuAnchorPreferenceKey: PreferenceKey {
 // hand that straight to the picker without any extra coordinate math (the
 // strip's hosting view is flipped, matching SwiftUI's own top-left origin).
 struct ShareButtonAnchorPreferenceKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>?
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
+    }
+}
+
+/// Same anchoring trick as ShareButtonAnchorPreferenceKey, for the image
+/// export button's own popover — kept as a separate key since both buttons
+/// publish an anchor at once and PreferenceKey.reduce can't tell them apart
+/// if they shared one.
+struct ImageExportAnchorPreferenceKey: PreferenceKey {
     static var defaultValue: Anchor<CGRect>?
     static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
         value = nextValue() ?? value

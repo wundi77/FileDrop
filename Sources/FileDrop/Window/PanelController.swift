@@ -20,6 +20,7 @@ final class PanelController {
     /// separate context menu panel.
     private var stripScreenFrame: NSRect = .zero
     private var lastContextMenuAnchor: CGRect?
+    private var imageExportPopover: NSPopover?
 
     var isStripVisible: Bool { (panel?.isVisible ?? false) && !isAnimatingOut }
 
@@ -101,6 +102,9 @@ final class PanelController {
             },
             onShareRequest: { [weak self] rect, urls in
                 self?.showSharePicker(relativeTo: rect, urls: urls)
+            },
+            onImageExportRequest: { [weak self] rect, urls in
+                self?.showImageExportPopover(relativeTo: rect, urls: urls)
             }
         ))
         hostingView.frame = NSRect(origin: .zero, size: frames.visible.size)
@@ -159,6 +163,17 @@ final class PanelController {
     private func showSharePicker(relativeTo rect: CGRect, urls: [URL]) {
         guard !urls.isEmpty, let hostingView else { return }
         NSSharingServicePicker(items: urls).show(relativeTo: rect, of: hostingView, preferredEdge: .minY)
+    }
+
+    private func showImageExportPopover(relativeTo rect: CGRect, urls: [URL]) {
+        guard !urls.isEmpty, let hostingView else { return }
+        let popover = NSPopover()
+        popover.behavior = .transient
+        popover.contentViewController = NSHostingController(rootView: ImageExportOptionsView(urls: urls) { [weak popover] in
+            popover?.close()
+        })
+        imageExportPopover = popover
+        popover.show(relativeTo: rect, of: hostingView, preferredEdge: .minY)
     }
 
     private func refreshContextMenu() {

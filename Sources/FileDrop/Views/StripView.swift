@@ -17,9 +17,12 @@ struct StripView: View {
     /// tapped — PanelController hands the rect straight to
     /// NSSharingServicePicker, whose hosting view is flipped the same way.
     var onShareRequest: (CGRect, [URL]) -> Void = { _, _ in }
+    /// Same idea as onShareRequest, for the image-export popover.
+    var onImageExportRequest: (CGRect, [URL]) -> Void = { _, _ in }
 
     private let palette = Theme.dark
     @State private var shareButtonFrame: CGRect = .zero
+    @State private var imageExportButtonFrame: CGRect = .zero
 
     var body: some View {
         GeometryReader { proxy in
@@ -39,6 +42,11 @@ struct StripView: View {
             .onPreferenceChange(ShareButtonAnchorPreferenceKey.self) { anchor in
                 if let anchor {
                     shareButtonFrame = proxy[anchor]
+                }
+            }
+            .onPreferenceChange(ImageExportAnchorPreferenceKey.self) { anchor in
+                if let anchor {
+                    imageExportButtonFrame = proxy[anchor]
                 }
             }
         }
@@ -134,6 +142,11 @@ struct StripView: View {
                     onShareRequest(shareButtonFrame, store.selectedURLs)
                 }
                 .anchorPreference(key: ShareButtonAnchorPreferenceKey.self, value: .bounds) { $0 }
+                HeaderIconButton(systemName: SymbolIcon.imageExport, title: "Bilder verkleinern/konvertieren …", palette: palette) {
+                    let imageURLs = store.selectedURLs.filter(ImageExportService.isImage)
+                    onImageExportRequest(imageExportButtonFrame, imageURLs)
+                }
+                .anchorPreference(key: ImageExportAnchorPreferenceKey.self, value: .bounds) { $0 }
                 HeaderIconButton(systemName: SymbolIcon.zip, title: "Ausgewählte als ZIP exportieren", palette: palette) {
                     store.exportSelectedAsZip()
                 }
