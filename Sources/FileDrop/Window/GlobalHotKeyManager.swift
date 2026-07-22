@@ -1,30 +1,43 @@
 import Carbon.HIToolbox
 import AppKit
+import Combine
 
-/// Registers a single global keyboard shortcut (⌃⌥D by default) that fires
-/// regardless of which app is currently frontmost. Carbon's
+/// Registers a single global keyboard shortcut that fires regardless of
+/// which app is currently frontmost, and re-registers automatically
+/// whenever the user picks a new one in Settings. Carbon's
 /// RegisterEventHotKey is used instead of NSEvent's global monitor because
 /// the latter can only observe key presses — never actually claim them —
 /// and typically needs Input Monitoring permission; the Carbon hotkey API
 /// needs neither, which is why it's still the standard way menu bar
 /// utilities implement a global shortcut on macOS.
+@MainActor
 final class GlobalHotKeyManager {
     private var hotKeyRef: EventHotKeyRef?
     private var eventHandlerRef: EventHandlerRef?
     private let action: () -> Void
+    private var cancellable: AnyCancellable?
 
-    init(
-        keyCode: UInt32 = UInt32(kVK_ANSI_D),
-        modifiers: UInt32 = UInt32(controlKey | optionKey),
-        action: @escaping () -> Void
-    ) {
+    init(settings: AppSettings, action: @escaping () -> Void) {
         self.action = action
-        register(keyCode: keyCode, modifiers: modifiers)
+        register(keyCode: settings.hotKeyCode, modifiers: settings.hotKeyModifiers)
+
+        cancellable = settings.$hotKeyCode
+            .combineLatest(settings.$hotKeyModifiers)
+            .dropFirst()
+            .sink { [weak self] keyCode, modifiers in
+                self?.unregister()
+                self?.register(keyCode: keyCode, modifiers: modifiers)
+            }
     }
 
     deinit {
         if let hotKeyRef { UnregisterEventHotKey(hotKeyRef) }
         if let eventHandlerRef { RemoveEventHandler(eventHandlerRef) }
+    }
+
+    private func unregister() {
+        if let hotKeyRef { UnregisterEventHotKey(hotKeyRef); self.hotKeyRef = nil }
+        if let eventHandlerRef { RemoveEventHandler(eventHandlerRef); self.eventHandlerRef = nil }
     }
 
     private func register(keyCode: UInt32, modifiers: UInt32) {

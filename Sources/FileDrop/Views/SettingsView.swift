@@ -5,10 +5,41 @@ struct SettingsView: View {
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject var store: ClipboardStore
 
+    @State private var isRecordingShortcut = false
+
     private var screens: [NSScreen] { NSScreen.screens }
 
     var body: some View {
         Form {
+            Section {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Tastenkombination zum Ein-/Ausblenden")
+                    HStack {
+                        Button {
+                            isRecordingShortcut = true
+                        } label: {
+                            Text(isRecordingShortcut ? "Drücke eine Tastenkombination …" : ShortcutDisplay.string(keyCode: settings.hotKeyCode, modifiers: settings.hotKeyModifiers))
+                                .frame(minWidth: 160)
+                        }
+                        .background(
+                            ShortcutRecorderView(isRecording: $isRecordingShortcut) { keyCode, modifiers in
+                                settings.hotKeyCode = keyCode
+                                settings.hotKeyModifiers = modifiers
+                            }
+                            .frame(width: 0, height: 0)
+                        )
+
+                        Button("Zurücksetzen") {
+                            settings.hotKeyCode = AppSettings.defaultHotKeyCode
+                            settings.hotKeyModifiers = AppSettings.defaultHotKeyModifiers
+                        }
+                    }
+                    Text("Muss mindestens eine Zusatztaste enthalten (⌃, ⌥, ⇧ oder ⌘).")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+
             Section {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Streifenhöhe: \(Int(settings.stripHeightFraction * 100)) % der Bildschirmhöhe")

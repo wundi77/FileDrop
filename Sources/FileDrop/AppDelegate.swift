@@ -12,7 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         setUpStatusItem()
         panelController.show()
-        hotKeyManager = GlobalHotKeyManager { [weak self] in self?.panelController.toggle() }
+        hotKeyManager = GlobalHotKeyManager(settings: AppSettings.shared) { [weak self] in self?.panelController.toggle() }
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool { true }

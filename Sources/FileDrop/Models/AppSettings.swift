@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import Combine
 
 /// Persisted, app-wide preferences shown in the Settings window — separate
@@ -27,9 +28,23 @@ final class AppSettings: ObservableObject {
         }
     }
 
+    /// Defaults to ⌃⌥D — see GlobalHotKeyManager, which re-registers
+    /// automatically whenever either of these changes.
+    @Published var hotKeyCode: UInt32 {
+        didSet { UserDefaults.standard.set(Int(hotKeyCode), forKey: Keys.hotKeyCode) }
+    }
+    @Published var hotKeyModifiers: UInt32 {
+        didSet { UserDefaults.standard.set(Int(hotKeyModifiers), forKey: Keys.hotKeyModifiers) }
+    }
+
+    static let defaultHotKeyCode = UInt32(kVK_ANSI_D)
+    static let defaultHotKeyModifiers = UInt32(controlKey | optionKey)
+
     private enum Keys {
         static let stripHeightFraction = "stripHeightFraction"
         static let preferredScreenID = "preferredScreenID"
+        static let hotKeyCode = "hotKeyCode"
+        static let hotKeyModifiers = "hotKeyModifiers"
     }
 
     private init() {
@@ -39,6 +54,13 @@ final class AppSettings: ObservableObject {
             preferredScreenID = CGDirectDisplayID(defaults.integer(forKey: Keys.preferredScreenID))
         } else {
             preferredScreenID = nil
+        }
+        if defaults.object(forKey: Keys.hotKeyCode) != nil {
+            hotKeyCode = UInt32(defaults.integer(forKey: Keys.hotKeyCode))
+            hotKeyModifiers = UInt32(defaults.integer(forKey: Keys.hotKeyModifiers))
+        } else {
+            hotKeyCode = Self.defaultHotKeyCode
+            hotKeyModifiers = Self.defaultHotKeyModifiers
         }
     }
 
