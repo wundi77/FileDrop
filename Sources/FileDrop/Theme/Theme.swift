@@ -54,7 +54,4 @@ enum Theme {
         static let button: CGFloat = 7
         static let contextMenu: CGFloat = 10
     }
-
-    /// Fraction of the screen height the top strip occupies.
-    static let stripHeightFraction: CGFloat = 1.0 / 6.0
 }

@@ -4,6 +4,7 @@ import ServiceManagement
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let panelController = PanelController()
+    private let settingsWindowController = SettingsWindowController()
     private var statusItem: NSStatusItem!
     private var hotKeyManager: GlobalHotKeyManager!
 
@@ -53,11 +54,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(launchItem)
 
         menu.addItem(.separator())
+
+        let settingsItem = NSMenuItem(
+            title: "Einstellungen …",
+            action: #selector(showSettings),
+            keyEquivalent: ","
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
+        menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
+    }
+
+    @objc private func showSettings() {
+        settingsWindowController.show(store: panelController.store)
     }
 
     @objc private func toggleLaunchAtLogin() {

@@ -77,8 +77,8 @@ final class PanelController {
     /// area, so the slide animation looks like the strip glides out from
     /// under the menu bar.
     private func stripFrames() -> (hidden: NSRect, visible: NSRect) {
-        let screen = NSScreen.main ?? NSScreen.screens[0]
-        let height = floor(screen.frame.height * Theme.stripHeightFraction)
+        let screen = AppSettings.shared.resolvedScreen
+        let height = floor(screen.frame.height * CGFloat(AppSettings.shared.stripHeightFraction))
         let topY = screen.visibleFrame.maxY
         let visible = NSRect(x: screen.frame.minX, y: topY - height, width: screen.frame.width, height: height)
         let hidden = visible.offsetBy(dx: 0, dy: height)

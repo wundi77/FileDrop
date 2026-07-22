@@ -9,9 +9,12 @@ final class ClipboardStore: ObservableObject {
     @Published var isDraggingOver: Bool = false
     @Published var hoveredFileID: UUID?
     @Published var contextMenuFileID: UUID?
-    /// User-adjustable strip background opacity, from barely-there (0.05) up
-    /// to fully opaque (1.0) — see OpacitySliderView.
-    @Published var stripOpacity: Double = 0.16
+    /// User-adjustable strip background opacity, from barely-there (0.01) up
+    /// to fully opaque (1.0) — see OpacitySliderView. Persisted across
+    /// launches since it's a genuine preference, not session state.
+    @Published var stripOpacity: Double = (UserDefaults.standard.object(forKey: "stripOpacity") as? Double) ?? 0.16 {
+        didSet { UserDefaults.standard.set(stripOpacity, forKey: "stripOpacity") }
+    }
     /// Fired the moment a tile drag crosses the drag threshold — lets
     /// PanelController auto-collapse the strip out of the way as soon as a
     /// file starts moving out of it (Yoink-style), before the drag even
