@@ -92,11 +92,17 @@ final class PanelController {
 
         let contextMenuController = ContextMenuPanelController(store: store)
 
-        let hostingView = NSHostingView(rootView: StripView(store: store) { [weak self] anchorRect in
-            guard let self else { return }
-            self.lastContextMenuAnchor = anchorRect
-            self.refreshContextMenu()
-        })
+        let hostingView = NSHostingView(rootView: StripView(
+            store: store,
+            onContextMenuAnchorChange: { [weak self] anchorRect in
+                guard let self else { return }
+                self.lastContextMenuAnchor = anchorRect
+                self.refreshContextMenu()
+            },
+            onShareRequest: { [weak self] rect, urls in
+                self?.showSharePicker(relativeTo: rect, urls: urls)
+            }
+        ))
         hostingView.frame = NSRect(origin: .zero, size: frames.visible.size)
         hostingView.autoresizingMask = [.width, .height]
         // Keeps the vibrancy material's translucency intact — without an
@@ -134,6 +140,11 @@ final class PanelController {
     private var hoveredURL: URL? {
         guard let hoveredFileID = store.hoveredFileID else { return nil }
         return store.files.first(where: { $0.id == hoveredFileID })?.url
+    }
+
+    private func showSharePicker(relativeTo rect: CGRect, urls: [URL]) {
+        guard !urls.isEmpty, let hostingView else { return }
+        NSSharingServicePicker(items: urls).show(relativeTo: rect, of: hostingView, preferredEdge: .minY)
     }
 
     private func refreshContextMenu() {

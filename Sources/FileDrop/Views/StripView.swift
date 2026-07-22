@@ -12,8 +12,14 @@ struct StripView: View {
     /// ContextMenuPanelController), so this just hands the raw rect out to
     /// AppKit, which positions an independent panel from it.
     var onContextMenuAnchorChange: (CGRect?) -> Void = { _ in }
+    /// Fires with the share button's own bounds (in this view's local
+    /// top-down coordinate space) and the URLs to share, whenever it's
+    /// tapped — PanelController hands the rect straight to
+    /// NSSharingServicePicker, whose hosting view is flipped the same way.
+    var onShareRequest: (CGRect, [URL]) -> Void = { _, _ in }
 
     private let palette = Theme.dark
+    @State private var shareButtonFrame: CGRect = .zero
 
     var body: some View {
         GeometryReader { proxy in
@@ -29,6 +35,11 @@ struct StripView: View {
             }
             .onPreferenceChange(ContextMenuAnchorPreferenceKey.self) { anchor in
                 onContextMenuAnchorChange(anchor.map { proxy[$0] })
+            }
+            .onPreferenceChange(ShareButtonAnchorPreferenceKey.self) { anchor in
+                if let anchor {
+                    shareButtonFrame = proxy[anchor]
+                }
             }
         }
         .background(
@@ -119,6 +130,10 @@ struct StripView: View {
                 HeaderIconButton(systemName: SymbolIcon.airdrop, title: "Ausgewählte per AirDrop teilen", palette: palette) {
                     store.shareSelectedViaAirDrop()
                 }
+                HeaderIconButton(systemName: SymbolIcon.share, title: "Ausgewählte teilen …", palette: palette) {
+                    onShareRequest(shareButtonFrame, store.selectedURLs)
+                }
+                .anchorPreference(key: ShareButtonAnchorPreferenceKey.self, value: .bounds) { $0 }
                 HeaderIconButton(systemName: SymbolIcon.zip, title: "Ausgewählte als ZIP exportieren", palette: palette) {
                     store.exportSelectedAsZip()
                 }

@@ -9,6 +9,7 @@ enum SymbolIcon {
     static let trash = "trash"
     static let selectAll = "checkmark.square"
     static let airdrop = "personalhotspot"
+    static let share = "square.and.arrow.up"
     static let zip = "doc.zipper"
     static let gridView = "square.grid.2x2"
     static let listView = "list.bullet"
@@ -62,6 +63,20 @@ struct PanelTooltipPreferenceKey: PreferenceKey {
 // the strip reads that once, at the top level, to position the menu card
 // right next to that tile.
 struct ContextMenuAnchorPreferenceKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>?
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = nextValue() ?? value
+    }
+}
+
+// MARK: - Share button anchoring
+//
+// NSSharingServicePicker.show(relativeTo:of:preferredEdge:) needs an AppKit
+// rect + view to anchor its popover to — the share button publishes its own
+// bounds the same way the context menu's anchor does, so PanelController can
+// hand that straight to the picker without any extra coordinate math (the
+// strip's hosting view is flipped, matching SwiftUI's own top-left origin).
+struct ShareButtonAnchorPreferenceKey: PreferenceKey {
     static var defaultValue: Anchor<CGRect>?
     static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
         value = nextValue() ?? value
