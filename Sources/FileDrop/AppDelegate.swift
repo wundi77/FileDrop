@@ -5,11 +5,13 @@ import ServiceManagement
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let panelController = PanelController()
     private var statusItem: NSStatusItem!
+    private var hotKeyManager: GlobalHotKeyManager!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         setUpStatusItem()
         panelController.show()
+        hotKeyManager = GlobalHotKeyManager { [weak self] in self?.panelController.toggle() }
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool { true }
